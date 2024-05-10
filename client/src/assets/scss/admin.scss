@@ -1,0 +1,16 @@
+.buttons_gray_light {
+    border-color: #ccc;
+    color: black;
+}
+.buttons_gray_light:hover {
+    border-color: #ccc;
+    background-color: #dfdfdf;
+    color: black;
+}
+.admin-main-navbar {
+    .active {
+        background-color: rgb(233, 246, 255);
+        color: black;
+        border-color: rgb(168, 200, 241);
+    }
+}
