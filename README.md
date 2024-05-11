@@ -11,7 +11,7 @@
 
 ## 🧐 About <a name = "about"></a>
 
-This is project was created only for code demonstrating. It has limited e-commerce functionality of following features.
+This project was published only for code demonstrating. It has limited e-commerce functionality of following features.
 
 | User                   | Admin                       |
 | ---------------------- | --------------------------- |
@@ -29,7 +29,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Installing
 
-Download and unpack files to local storage.
+Firstly [download](https://github.com/alexromlex/NODE_REACT_webshop/archive/refs/heads/main.zip) and unpack files to local storage.
 
 Install node_modules inside \server> and \client> directories:
 
@@ -45,7 +45,7 @@ Then, run all containers with command from project root dicrectory:
 docker compose up -d
 ```
 
-I recommend create database by API, but before waiting for container <webshop_db> is started successfully, see docker desktop app!
+I recommend create database by API, but before waiting for container <webshop_db> to start successfully, see docker desktop app!
 
 <webshop_db> container logs must be like:
 
@@ -68,13 +68,13 @@ itt will run:
 
 Firstly login as ADMIN by URL: http://localhost:5226/login
 
-ADMIN email & password you can find in root directory .env file
+ADMIN email & password you can find inside root directory .env file
 
 Then, go to admin panel http://localhost:5226/admin/brands where you can create a brands!
 
-After this, create product types, whitch will contain already created brands.
+After this, create product types, that will contain the brands you have already created.
 
-When you have types and brands, let's do crate a products!
+When you have types and brands, let's crate a products!
 
 ## 🚀 Tech Stack <a name = "techstack"></a>
 
