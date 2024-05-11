@@ -1,15 +1,12 @@
 {
   "name": "server",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "scripts": {
-    "_comment": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "build": "tsc --build",
     "clean": "rm -rf dist",
     "test": "jest --detectOpenHandles",
     "test:only": "jest --detectOpenHandles jest -i settingsRouter.test.ts",
-    "start": "node ./dist/index.js",
     "dev": "nodemon ./src/index.ts"
   },
   "keywords": [],
