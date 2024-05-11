@@ -5,7 +5,7 @@
 - [About](#about)
 - [Getting Started](#getting_started)
 - [Usage](#usage)
-- [Deployment](#deployment)
+- [Tech Stack](#techstack)
 - [Tests](#tests)
 - [Screenshots](https://github.com/alexromlex/NODE_REACT_webshop/tree/main/screenshots)
 
@@ -60,7 +60,7 @@ Then, go to URL: http://localhost:5026/api/system/db_sync
 itt will run:
 
 - db authentication
-- create DB tables
+- create db tables
 - create admin user
 - create default settings
 
@@ -76,7 +76,7 @@ After this, create product types, whitch will contain already created brands.
 
 When you have types and brands, let's do crate a products!
 
-## 🚀 Deployment <a name = "deployment"></a>
+## 🚀 Tech Stack <a name = "techstack"></a>
 
 ## Backend
 
@@ -95,6 +95,8 @@ When you have types and brands, let's do crate a products!
 ## Frontend
 
 - ReactJS
+- HighCharts
+- TinyMCE
 - TypeScrypt
 
 ## Tests
