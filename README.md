@@ -82,7 +82,7 @@ When you have types and brands, let's do crate a products!
 
 - NodeJS v.18
 - Express v.4
-- Logign - Morgan
+- Loging - Morgan
 - Authentication (JWT + bcrypt)
 - TypeScrypt
 
