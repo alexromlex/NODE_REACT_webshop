@@ -13,7 +13,7 @@ const OrdersAdmin = () => {
   const [modalShow, setModalShow] = useState(false);
   const [editOrder, setEditOrder] = useState<OrderInterface | null>(null);
   const [modalTitle, setModalTitle] = useState('');
-  const [filter, setFilter] = useState(null);
+  const [filter, setFilter] = useState<String | null>(null);
   const [filtered, setFiltered] = useState<OrderInterface[]>([]);
 
   const editClickHandler = (order: OrderInterface) => {
@@ -45,7 +45,7 @@ const OrdersAdmin = () => {
     );
   };
   useEffect(() => {
-    getAllOrder(null)
+    getAllOrder()
       .then((result) => {
         adminStore.setOrders(result.data);
         setFiltered(
