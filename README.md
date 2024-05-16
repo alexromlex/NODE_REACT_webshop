@@ -57,12 +57,12 @@ Also you'll see db files inside project root directory \db>
 
 Then, go to URL: http://localhost:5026/api/system/db_sync
 
-itt will run:
+### result should be the next:
 
-- db authentication
-- create db tables
-- create admin user
-- create default settings
+- DB Authorisation was successfully!
+- DB has been Synchronized!
+- NEW - SETTINGS created!
+- NEW - User(ADMIN) created!
 
 ## 🎈 Usage <a name="usage"></a>
 
@@ -74,7 +74,7 @@ Then, go to admin panel http://localhost:5226/admin/brands where you can create 
 
 After this, create product types, that will contain the brands you have already created.
 
-When you have types and brands, let's crate a products!
+If you have created types and brands, let's crate a products!
 
 ## 🚀 Tech Stack <a name = "techstack"></a>
 

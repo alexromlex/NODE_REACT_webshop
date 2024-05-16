@@ -5,70 +5,63 @@ import { NextFunction, Request, Response } from 'express';
 import { User } from '../database/models/models';
 import bcrypt from 'bcrypt';
 import SettingsService from '../services/settingsService';
+import UserService from '../services/userService';
 const router = Router();
 
-const createSettingsOnStart = async () => {
-  const values = [
-    { name: 'general_terms', value: '' },
-    { name: 'privacy_policy', value: '' },
-    { name: 'header_img', value: '/b-logo.gif' },
-    { name: 'header_name', value: 'WEBSHOP' },
-    { name: 'billing_fullname', value: '' },
-    { name: 'billing_country', value: '' },
-    { name: 'billing_index', value: '' },
-    { name: 'billing_city', value: '' },
-    { name: 'billing_street', value: '' },
-    { name: 'billing_tax', value: '' },
-    { name: 'billing_bank_name', value: '' },
-    { name: 'billing_bank_account', value: '' },
-    { name: 'billing_bank_info', value: '' },
-  ];
-  await new SettingsService().createSettings(values);
-};
+const defaultSettings = [
+  { name: 'general_terms', value: '' },
+  { name: 'privacy_policy', value: '' },
+  { name: 'header_img', value: '/b-logo.gif' },
+  { name: 'header_name', value: 'WEBSHOP' },
+  { name: 'billing_fullname', value: '' },
+  { name: 'billing_country', value: '' },
+  { name: 'billing_index', value: '' },
+  { name: 'billing_city', value: '' },
+  { name: 'billing_street', value: '' },
+  { name: 'billing_tax', value: '' },
+  { name: 'billing_bank_name', value: '' },
+  { name: 'billing_bank_account', value: '' },
+  { name: 'billing_bank_info', value: '' },
+];
 
 router.route('/db_sync').get(
   // hasRoles(['ADMIN']),
   (req: Request, res: Response, next: NextFunction) => {
     const log: string[] = [];
-    sequelize
-      .authenticate()
-      .then(() => {
-        sequelize
-          .sync()
-          .then(async () => {
-            log.push('>>> DB has been Synchronized!');
-            const users = await User.findAll();
-            if (!users || users.length > 0) return;
-            User.create({
+    Promise.all([
+      sequelize.authenticate().then(() => {
+        log.push('>>> DB Authorisation successfully!');
+      }),
+      sequelize.sync().then(async () => {
+        log.push('>>> DB has been Synchronized!');
+      }),
+    ])
+      .then(async () => {
+        Promise.all([
+          new UserService()
+            .create({
               email: process.env.ADMIN_USER_EMAIL!,
               role: 'ADMIN',
-              password: await bcrypt.hash(String(process.env.ADMIN_USER_PASS), 4),
+              password: process.env.ADMIN_USER_PASS!,
             })
-              .then(() => {
-                log.push('>>> NEW - User(ADMIN) created!');
-              })
-              .catch((error) => {
-                log.push('- ERROR - User(ADMIN) not created! see logs');
-                console.log('ERROR CREATE USER: ', error);
-              });
-
-            createSettingsOnStart().then(() => {
-              log.push('>>> NEW - SETTINGS created!');
-            });
+            .then(() => {
+              log.push('>>> NEW - User(ADMIN) created!');
+            }),
+          new SettingsService().createSettings(defaultSettings).then(() => {
+            log.push('>>> NEW - SETTINGS created!');
+          }),
+        ])
+          .then(() => {
+            res.setHeader('Content-type', 'text/html');
+            res.send(`<p>${log.join('</br>')}</p>`);
           })
-          .catch((e) => {
-            log.push('- DB SYNC ERROR! see logs');
-            console.log('ERROR DB SYNC: ', e);
+          .catch((error) => {
+            res.json(error);
           });
       })
       .catch((error) => {
-        log.push('- DB AUTH ERROR! see logs');
-        console.log('ERROR DB AUTH: ', error);
-      })
-      .finally(() => {
-        return res.json(log.join('\n'));
+        res.json(error);
       });
   }
 );
-
 export default router;
