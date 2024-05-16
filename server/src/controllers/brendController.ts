@@ -16,7 +16,8 @@ export default class BrandController {
       const brands = await this.brandService.getAllBrands();
       res.status(200).json(brands);
     } catch (error: any) {
-      return next(ApiError.invalid(error));
+      if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
+      return next(ApiError.invalid(error.message || error));
     }
   }
 
@@ -27,8 +28,9 @@ export default class BrandController {
       const brand = await this.brandService.createBrand(name, brands);
       if (!brand) return next(ApiError.notFound('Not found!'));
       return res.status(200).json(brand);
-    } catch (error) {
-      return next(ApiError.invalid(error));
+    } catch (error: any) {
+      if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
+      return next(ApiError.invalid(error.message || error));
     }
   }
 
@@ -41,8 +43,9 @@ export default class BrandController {
       const brand = await this.brandService.updateBrand(Number(id), { name, brands });
       if (!brand) return next(ApiError.notFound('Not found!'));
       return res.status(200).json(brand);
-    } catch (error) {
-      return next(ApiError.invalid(error));
+    } catch (error: any) {
+      if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
+      return next(ApiError.invalid(error.message || error));
     }
   }
 
@@ -53,8 +56,9 @@ export default class BrandController {
     try {
       const brand = await this.brandService.deleteBrand(Number(id));
       return res.status(200).json(brand);
-    } catch (error) {
-      return next(ApiError.invalid(error));
+    } catch (error: any) {
+      if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
+      return next(ApiError.invalid(error.message || error));
     }
   }
 }

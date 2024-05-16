@@ -18,7 +18,8 @@ export default class TypeController {
       const types = await this.typeService.getAllTypes();
       res.status(200).json(types);
     } catch (error: any) {
-      return next(ApiError.invalid(error));
+      if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
+      return next(ApiError.invalid(error.message || error));
     }
   }
 
@@ -31,7 +32,8 @@ export default class TypeController {
       if (!type) return next(ApiError.notFound('Not found!'));
       return res.status(200).json(type);
     } catch (error: any) {
-      return next(ApiError.invalid(error));
+      if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
+      return next(ApiError.invalid(error.message || error));
     }
   }
 
@@ -42,8 +44,9 @@ export default class TypeController {
       const type = await this.typeService.createType(name, brands);
       if (!type) return next(ApiError.notFound('Not found!'));
       return res.status(200).json(type);
-    } catch (error) {
-      return next(ApiError.invalid(error));
+    } catch (error: any) {
+      if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
+      return next(ApiError.invalid(error.message || error));
     }
   }
 
@@ -56,8 +59,9 @@ export default class TypeController {
       const type = await this.typeService.updateType(Number(id), { name, brands });
       if (!type) return next(ApiError.notFound('Not found!'));
       return res.status(200).json(type);
-    } catch (error) {
-      return next(ApiError.invalid(error));
+    } catch (error: any) {
+      if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
+      return next(ApiError.invalid(error.message || error));
     }
   }
 
@@ -68,8 +72,9 @@ export default class TypeController {
     try {
       const type = await this.typeService.deleteType(Number(id));
       return res.status(200).json(type);
-    } catch (error) {
-      return next(ApiError.invalid(error));
+    } catch (error: any) {
+      if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
+      return next(ApiError.invalid(error.message || error));
     }
   }
 }

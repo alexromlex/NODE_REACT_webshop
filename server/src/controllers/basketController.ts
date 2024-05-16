@@ -24,7 +24,8 @@ export default class BasketController {
       if (!result) return next(ApiError.notFound("Can't get basket products! See logs"));
       res.status(200).json(result);
     } catch (error: any) {
-      return next(ApiError.invalid(error));
+      if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
+      return next(ApiError.invalid(error.message || error));
     }
   }
 
@@ -32,9 +33,14 @@ export default class BasketController {
     // If order is complete!
     const basketId = req.cookies.bsktId;
     if (!basketId) return next(ApiError.notFound('Basket Id not foud!'));
-    const resp = await this.basketService.emptyBasket(basketId);
-    if (!resp) return next(ApiError.internal(`Can't delete. See logs`));
-    return res.status(200).json({ removed: resp });
+    try {
+      const resp = await this.basketService.emptyBasket(basketId);
+      if (!resp) return next(ApiError.internal(`Can't delete. See logs`));
+      return res.status(200).json({ removed: resp });
+    } catch (error: any) {
+      if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
+      return next(ApiError.invalid(error.message || error));
+    }
   }
 
   async deleteFromBasket(req: Request, res: Response, next: NextFunction) {
@@ -47,7 +53,8 @@ export default class BasketController {
       if (!result) return next(ApiError.internal(`Can't delete. See logs`));
       return res.status(200).json(result);
     } catch (error: any) {
-      return next(ApiError.internal(error));
+      if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
+      return next(ApiError.invalid(error.message || error));
     }
   }
 
@@ -62,8 +69,9 @@ export default class BasketController {
       const resp = await this.basketService.addToBasket(Array(quantity).fill({ productId: product_id, basketId }));
       // console.log('resp: ', resp);
       return res.status(200).json({ added: resp.length });
-    } catch (error) {
-      return next(ApiError.notFound(error));
+    } catch (error: any) {
+      if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
+      return next(ApiError.invalid(error.message || error));
     }
   }
 }

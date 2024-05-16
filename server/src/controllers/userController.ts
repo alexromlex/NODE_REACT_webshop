@@ -40,7 +40,8 @@ export default class UserController {
       if (!user) return next(ApiError.notFound(`User not found!`));
       return res.status(200).json(user);
     } catch (error: any) {
-      return next(ApiError.invalid(error));
+      if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
+      return next(ApiError.invalid(error.message || error));
     }
   }
 
@@ -52,8 +53,8 @@ export default class UserController {
       if (!result) return next(ApiError.internal(`Can't get statistics. See logs`));
       res.status(200).json(result);
     } catch (error: any) {
-      console.error(error);
-      return next(ApiError.invalid(error));
+      if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
+      return next(ApiError.invalid(error.message || error));
     }
   }
 

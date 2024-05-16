@@ -15,9 +15,9 @@ export default class OrderController {
     try {
       const orders = await this.orderService.getAllOrder({ status, paid });
       res.status(200).json(orders);
-    } catch (error) {
-      console.error(error);
-      return next(ApiError.notFound(error));
+    } catch (error: any) {
+      if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
+      return next(ApiError.invalid(error.message || error));
     }
   }
 
@@ -28,9 +28,9 @@ export default class OrderController {
     try {
       const orders = await this.orderService.getUserOrders(user);
       res.status(200).json(orders);
-    } catch (error) {
-      console.error(error);
-      return next(ApiError.notFound(error));
+    } catch (error: any) {
+      if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
+      return next(ApiError.invalid(error.message || error));
     }
   }
 
@@ -45,8 +45,8 @@ export default class OrderController {
       if (!order) return res.status(404).json('Not found!');
       return res.status(200).json(order);
     } catch (error: any) {
-      console.error(error);
-      return next(ApiError.notFound(error));
+      if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
+      return next(ApiError.invalid(error.message || error));
     }
   }
 
@@ -62,13 +62,12 @@ export default class OrderController {
       if (!order) return next(ApiError.notFound('Cant find order by given options!'));
       return res.status(200).json(order);
     } catch (error: any) {
-      console.error(error);
-      return next(ApiError.invalid(error));
+      if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
+      return next(ApiError.invalid(error.message || error));
     }
   }
 
   async newOrder(req: Request, res: Response, next: NextFunction) {
-    // console.log(`'[${this.name} newOrder] called!'`);
     const { basket_items, amount, deliveryData, invoiceData, shipping, payment } = req.body;
     //@ts-ignore
     const user = req.user;
@@ -89,8 +88,8 @@ export default class OrderController {
       if (!result) return next(ApiError.internal('Error see logs...'));
       return res.status(200).json(result);
     } catch (error: any) {
-      console.error(error);
-      return next(ApiError.notFound(error));
+      if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
+      return next(ApiError.invalid(error.message || error));
     }
   }
 
@@ -102,8 +101,8 @@ export default class OrderController {
       if (!result) return next(ApiError.invalid("Can't get statistic, see logs!"));
       return res.status(200).json(result);
     } catch (error: any) {
-      console.log(error);
-      return next(ApiError.invalid(error));
+      if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
+      return next(ApiError.invalid(error.message || error));
     }
   }
 
@@ -114,8 +113,8 @@ export default class OrderController {
       if (!result) return next(ApiError.invalid("Can't get statistic, see logs!"));
       return res.status(200).json(result);
     } catch (error: any) {
-      console.log(error);
-      return next(ApiError.invalid(error));
+      if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
+      return next(ApiError.invalid(error.message || error));
     }
   }
 
@@ -126,8 +125,8 @@ export default class OrderController {
       if (!result) return next(ApiError.invalid("Can't get statistic, see logs!"));
       return res.status(200).json(result);
     } catch (error: any) {
-      console.log(error);
-      return next(ApiError.invalid(error));
+      if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
+      return next(ApiError.invalid(error.message || error));
     }
   }
 
@@ -138,8 +137,8 @@ export default class OrderController {
       if (!result) return next(ApiError.invalid("Can't get statistic, see logs!"));
       return res.status(200).json(result);
     } catch (error: any) {
-      console.log(error);
-      return next(ApiError.invalid(error));
+      if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
+      return next(ApiError.invalid(error.message || error));
     }
   }
 
@@ -150,8 +149,8 @@ export default class OrderController {
       if (!result) return next(ApiError.invalid("Can't get statistic, see logs!"));
       return res.status(200).json(result);
     } catch (error: any) {
-      console.log(error);
-      return next(ApiError.invalid(error));
+      if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
+      return next(ApiError.invalid(error.message || error));
     }
   }
 }

@@ -24,8 +24,9 @@ export default class BaseController {
     try {
       const result = await this.model.create(data);
       return res.status(200).json(result);
-    } catch (error) {
-      return next(ApiError.invalid(error));
+    } catch (error: any) {
+      if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
+      return next(ApiError.invalid(error.message || error));
     }
   }
 
@@ -35,8 +36,9 @@ export default class BaseController {
       const result = await this.model.findAll({ order: [['id', 'DESC']] });
       // console.log('RESULT: ', JSON.stringify(result, null, 2));
       return res.status(200).json(result);
-    } catch (error) {
-      return next(ApiError.invalid(error));
+    } catch (error: any) {
+      if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
+      return next(ApiError.invalid(error.message || error));
     }
   }
 
@@ -48,8 +50,9 @@ export default class BaseController {
       if (!finded) return next(ApiError.notFound('Not found!'));
       const result = await finded.destroy();
       return res.status(200).json(result);
-    } catch (error) {
-      return next(ApiError.invalid(error));
+    } catch (error: any) {
+      if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
+      return next(ApiError.invalid(error.message || error));
     }
   }
   async update(req: Request, res: Response, next: NextFunction) {
@@ -59,8 +62,9 @@ export default class BaseController {
     try {
       const result = await this.model.update(data, { where: { id: id } });
       return res.status(200).json(result);
-    } catch (error) {
-      return next(ApiError.invalid(error));
+    } catch (error: any) {
+      if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
+      return next(ApiError.invalid(error.message || error));
     }
   }
 }
