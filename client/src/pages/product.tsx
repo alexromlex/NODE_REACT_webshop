@@ -86,12 +86,19 @@ const ProductPage = () => {
             </Col>
           </Row>
           <Row className="">
-            <h4 className="p-0 m-0 mt-3">More {product.type.name}</h4>
-            <ProductList type={product.type.id} brand={null} page={1} limit={6} sort={['updatedAt', 'DESC']} v={null} />
-            <h4 className="p-0 m-0 mt-3">More by {product.brand.name}</h4>
+            <h4 className="p-0 m-0 mt-3">More {product.type!.name}</h4>
+            <ProductList
+              type={product.type!.id}
+              brand={null}
+              page={1}
+              limit={6}
+              sort={['updatedAt', 'DESC']}
+              v={null}
+            />
+            <h4 className="p-0 m-0 mt-3">More by {product.brand!.name}</h4>
             <ProductList
               type={null}
-              brand={product.brand.id}
+              brand={product.brand!.id}
               page={1}
               limit={6}
               sort={['updatedAt', 'DESC']}

@@ -22,14 +22,17 @@ const ProductList: React.FC<PropsInterface> = ({ type, brand, page, limit, sort,
   const navigator = useNavigate();
   useEffect(() => {
     const data = promiseWrapper(
-      getProducts(type, brand, page, limit, sort, v).then(({ data }) => {
-        productStore.setTotalPages(data.count);
-        return data;
-      }),
+      getProducts(type, brand, page, limit, sort, v)
+        .then(({ data }) => {
+          productStore.setTotalPages(data.count);
+          return data;
+        })
+        .catch((error) => null),
       0
     );
     setData(data);
   }, [type, brand, page, limit, sort, v]);
+  console.log('data: ', data);
   return !data ? (
     data
   ) : data.rows.length > 0 ? (

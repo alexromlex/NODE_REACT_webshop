@@ -10,11 +10,10 @@ import userStore from './stores/userStore';
 import basketStore from './stores/basketStore';
 import mainStore from './stores/mainStore';
 import { jwtDecode } from 'jwt-decode';
+import { getMainSettings } from './api/settingsApi';
 
 const App = () => {
-  // console.log('[App] called!');
   const [userchecking, setUserChecking] = useState(true);
-
   useEffect(() => {
     userCheckAuth()
       .then(({ data }) => {
@@ -28,7 +27,14 @@ const App = () => {
         setUserChecking(false);
         basketStore.getBasket(userStore.user?.id);
       });
-    mainStore.getSettings();
+    getMainSettings()
+      .then((resp) => {
+        mainStore.setHeaderImage(resp.data.header_img);
+        mainStore.setHeaderName(resp.data.header_name);
+      })
+      .catch((error) => {
+        console.log('ERROR: ', error);
+      });
   }, []);
 
   return (

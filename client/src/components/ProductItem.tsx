@@ -24,17 +24,18 @@ const ProductItem: React.FC<ProductItemProps> = ({ product }) => {
         <Card.Body>
           <Card.Title>{product.name}</Card.Title>
           <div>
-            <span className="badge text-bg-primary">{product.brand.name}</span>
-            <span className="badge text-bg-secondary ms-1">{product.type.name}</span>
+            <span className="badge text-bg-primary">{product.brand!.name}</span>
+            <span className="badge text-bg-secondary ms-1">{product.type!.name}</span>
           </div>
           <Card.Text>{product.price.toLocaleString('hu-HU')} HUF</Card.Text>
-          <StarRating rating={(product.rating / 5) * 100} />
+          <StarRating rating={(product.rating! / 5) * 100} />
           <Card.Text className="productDescription">
-            {Array.from(
-              product.info?.map((i) => {
-                return String(i.title + ': ' + i.description);
-              })
-            ).join(', ')}
+            {product.info &&
+              Array.from(
+                product.info?.map((i) => {
+                  return String(i.title + ': ' + i.description);
+                })
+              ).join(', ')}
           </Card.Text>
         </Card.Body>
       </Card>

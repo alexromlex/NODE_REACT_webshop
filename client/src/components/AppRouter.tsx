@@ -14,6 +14,7 @@ import CheckoutPage from '../pages/checkout';
 import CheckoutSuccess from '../pages/checkoutSuccess';
 import TermsConditionsPage from '../pages/general_terms';
 import PrivacyPolicyPage from '../pages/privacy_policy';
+import PageError from '../pages/403';
 
 export interface RouteInterface {
   path: string;
@@ -100,6 +101,11 @@ const AppRouter = () => {
     {
       path: '/page_not_found',
       element: <PageNotFound />,
+      private: null,
+    },
+    {
+      path: '/error',
+      element: <PageError />,
       private: null,
     },
     { path: '*', element: <PageNotFound />, private: null },
