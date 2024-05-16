@@ -10,6 +10,7 @@ import ProductInfoRepository from '../../repositories/productInfoRepo';
 import { productInfoFixt } from '../__fixtures__/productInfo';
 import { ratingFixt } from '../__fixtures__/rating';
 import { saveImage, deleteImage } from '../../utils';
+import sequelize from '../../database/connect';
 
 process.env.SECRET_KEY = 'kjdfh8ghdkjfngdfijbodsdlfdoighn';
 process.env.TOKEN_PREFIX = 'ROMLEX';
@@ -90,6 +91,8 @@ describe('API / PRODUCT POSITIVE', () => {
     productInfo_bulkCreate.mockImplementation(async () => [productInfoFixt, productInfoFixt]);
     product_getProductFullData.mockImplementation(async () => productFixt);
     jest.mocked(saveImage).mockImplementation(() => 'text');
+    // @ts-ignore
+    const spyTransaction = jest.spyOn(sequelize, 'transaction').mockImplementation((callback) => callback());
     await supertest(createServer())
       .post('/api/product')
       .set('Authorization', process.env.TOKEN_PREFIX + ' ' + adminToken)
@@ -105,6 +108,7 @@ describe('API / PRODUCT POSITIVE', () => {
         expect(result.body.id).toBe(1);
         expect(result.body.name).toBe('FREEZER 54545885ED');
       });
+    expect(spyTransaction).toHaveBeenCalled();
   });
   test('GET - /product/1 => product by id 1', async () => {
     product_getProductFullData.mockImplementation(async () => productFixt);
@@ -135,7 +139,8 @@ describe('API / PRODUCT POSITIVE', () => {
     jest.mocked(deleteImage).mockImplementation(() => true);
     rating_create.mockImplementation(async () => ratingFixt);
     rating_deleteByOptions.mockImplementation(async () => 1);
-
+    // @ts-ignore
+    const spyTransaction = jest.spyOn(sequelize, 'transaction').mockImplementation((callback) => callback());
     await supertest(createServer())
       .patch('/api/product/1')
       .set('Authorization', process.env.TOKEN_PREFIX + ' ' + adminToken)
@@ -151,6 +156,7 @@ describe('API / PRODUCT POSITIVE', () => {
         expect(result.body.name).toBe('UPDATED PRODUCT NAME');
         expect(result.body.img).toBe('UPDATED_PRODUCT_NAME_image.jpg');
       });
+    expect(spyTransaction).toHaveBeenCalled();
   });
 });
 

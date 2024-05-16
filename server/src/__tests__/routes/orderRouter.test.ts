@@ -19,6 +19,7 @@ import BasketRepository from '../../repositories/basketRepo';
 import ProductRepository from '../../repositories/productRepo';
 import { NewOrderGetAllProductsFixt, newOrderGetBasketFixt } from '../__fixtures__/orders';
 import BasketProductRepository from '../../repositories/basketProductRepo';
+import sequelize from '../../database/connect';
 
 jest.mock('../../repositories/orderRepo');
 
@@ -138,6 +139,8 @@ describe('API / ORDERS POSITIVE', () => {
     getAllProducts.mockImplementation(async () => NewOrderGetAllProductsFixt);
     create.mockImplementation(async () => newOrderFixt);
     deleteByOptionsBasket.mockImplementation(async () => 1);
+    //@ts-ignore
+    const spyTransaction = jest.spyOn(sequelize, 'transaction').mockImplementation((callback) => callback());
     await supertest(createServer())
       .post('/api/order/new')
       .set('Authorization', process.env.TOKEN_PREFIX + ' ' + userToken)
@@ -146,6 +149,7 @@ describe('API / ORDERS POSITIVE', () => {
       .then((result) => {
         expect(result.body.orderId).toBe(1);
       });
+    expect(spyTransaction).toHaveBeenCalled();
   });
   test('POST - /statistic/by_status => orders by status', async () => {
     const startDate = new Date();

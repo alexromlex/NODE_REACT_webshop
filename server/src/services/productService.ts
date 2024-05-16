@@ -42,25 +42,27 @@ export default class ProductService implements ProductServiceInterface {
   }
 
   async createProduct(values: Record<string, any>) {
-    // console.log('createProduct called!');
     const { name, price, rating, brandId, typeId, info, image } = values;
     const fileName = generateImageName(name);
     try {
-      if (!saveImage(image['img'], fileName)) throw ApiError.internal('Cant upload Image!');
-      let newProduct = await this.productRepo.create({ name, price, brandId, typeId, img: fileName });
-      if (!newProduct) throw ApiError.internal(`Can't create product! See logs`);
-      await this.ratingRepo.create({ rate: rating, productId: newProduct.id });
-      if (info && info !== 'undefined' && info !== 'null') {
-        await this.productInfoRepo.bulkCreate(
-          JSON.parse(info).map((el: any) => ({
-            title: el.title,
-            description: el.description,
-            productId: newProduct.id,
-          }))
-        );
-      }
-      return this.productRepo.getProductFullData(newProduct.id);
+      return await sequelize.transaction(async () => {
+        if (!saveImage(image['img'], fileName)) throw ApiError.internal('Cant upload Image!');
+        let newProduct = await this.productRepo.create({ name, price, brandId, typeId, img: fileName });
+        if (!newProduct) throw ApiError.internal(`Can't create product! See logs`);
+        await this.ratingRepo.create({ rate: rating, productId: newProduct.id });
+        if (info && info !== 'undefined' && info !== 'null') {
+          await this.productInfoRepo.bulkCreate(
+            JSON.parse(info).map((el: any) => ({
+              title: el.title,
+              description: el.description,
+              productId: newProduct.id,
+            }))
+          );
+        }
+        return await this.productRepo.getProductFullData(newProduct.id);
+      });
     } catch (error: any) {
+      deleteImage(fileName);
       throw error;
     }
   }
@@ -71,35 +73,39 @@ export default class ProductService implements ProductServiceInterface {
     if (!values || Object.keys(values).length === 0) throw ApiError.invalid(`Product values missing`);
     const { name, price, rating, brandId, typeId, image } = values;
     let info: string | undefined = values.info;
-    const fileName = generateImageName(name);
+    let fileName = generateImageName(name);
     try {
-      const product = await this.productRepo.getProductFullData(id);
-      if (!product) throw ApiError.notFound('Product not found!');
-      // IMAGE
-      if (!image || !image.img) throw ApiError.notFound('No Image detected!');
-      if (product.img !== image.img['name'] || product.name !== name) {
-        deleteImage(product.img);
-        saveImage(image.img, fileName);
-      }
-      // INFO
-      if (JSON.stringify(product.info) !== info) {
-        if (product.info) await this.productInfoRepo.deleteByOptions({ where: { productId: product.id } });
-        if (info && info !== 'undefined' && info !== 'null')
-          await this.productInfoRepo.bulkCreate(
-            JSON.parse(info).map((el: any) => ({
-              title: el.title,
-              description: el.description,
-              productId: product.id,
-            }))
-          );
-      }
-      // RATING
-      if (rating !== product.rating) {
-        await this.ratingRepo.deleteByOptions({ where: { productId: product.id } });
-        await this.ratingRepo.create({ rate: rating, productId: product.id });
-      }
-      await this.productRepo.update(product, { name, price, rating: 5, brandId, typeId, img: fileName }); // product will be with updated data
-      return this.productRepo.getProductFullData(product.id);
+      return await sequelize.transaction(async () => {
+        const product = await this.productRepo.getProductFullData(id);
+        if (!product) throw ApiError.notFound('Product not found!');
+        // IMAGE
+        if (!image || !image.img) throw ApiError.notFound('No Image detected!');
+        if (product.img !== image.img['name'] || product.name !== name) {
+          deleteImage(product.img);
+          saveImage(image.img, fileName);
+        } else {
+          fileName = product.img;
+        }
+        // INFO
+        if (JSON.stringify(product.info) !== info) {
+          if (product.info) await this.productInfoRepo.deleteByOptions({ where: { productId: product.id } });
+          if (info && info !== 'undefined' && info !== 'null')
+            await this.productInfoRepo.bulkCreate(
+              JSON.parse(info).map((el: any) => ({
+                title: el.title,
+                description: el.description,
+                productId: product.id,
+              }))
+            );
+        }
+        // RATING
+        if (rating !== product.rating) {
+          await this.ratingRepo.deleteByOptions({ where: { productId: product.id } });
+          await this.ratingRepo.create({ rate: rating, productId: product.id });
+        }
+        await this.productRepo.update(product, { name, price, rating: 5, brandId, typeId, img: fileName }); // product will be with updated data
+        return this.productRepo.getProductFullData(product.id);
+      });
     } catch (error: any) {
       throw error;
     }
