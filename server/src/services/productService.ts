@@ -46,7 +46,7 @@ export default class ProductService implements ProductServiceInterface {
     const fileName = generateImageName(name);
     try {
       return await sequelize.transaction(async () => {
-        if (!saveImage(image['img'], fileName)) throw ApiError.internal('Cant upload Image!');
+        if (!(await saveImage(image['img'], fileName))) throw ApiError.internal('Cant upload Image!');
         let newProduct = await this.productRepo.create({ name, price, brandId, typeId, img: fileName });
         if (!newProduct) throw ApiError.internal(`Can't create product! See logs`);
         await this.ratingRepo.create({ rate: rating, productId: newProduct.id });
@@ -82,7 +82,7 @@ export default class ProductService implements ProductServiceInterface {
         if (!image || !image.img) throw ApiError.notFound('No Image detected!');
         if (product.img !== image.img['name'] || product.name !== name) {
           deleteImage(product.img);
-          saveImage(image.img, fileName);
+          await saveImage(image.img, fileName);
         } else {
           fileName = product.img;
         }

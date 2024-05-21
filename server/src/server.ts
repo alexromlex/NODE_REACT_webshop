@@ -7,7 +7,6 @@ import errorHandler from './middleware/ErrorHandleMiddleware';
 import fileUpload from 'express-fileupload';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
-import path from 'path';
 
 const app = express();
 export const createServer = () => {
@@ -21,7 +20,7 @@ export const createServer = () => {
       })
     )
     .use(cookieParser())
-    .use(helmet())
+    .use(helmet({ crossOriginResourcePolicy: false }))
     .use(json())
     .use(
       express.static('.', {

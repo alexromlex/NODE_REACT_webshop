@@ -4,7 +4,7 @@ import { createServer } from '../../server';
 import ProductRepository from '../../repositories/productRepo';
 import jwt from 'jsonwebtoken';
 import { userAdminFixt } from '../__fixtures__/users';
-import { productFixt, productImagePath, productUpdatedFixt } from '../__fixtures__/product';
+import { productFixt, productImagePath, productUpdatedFixt, savedImageOutput } from '../__fixtures__/product';
 import RatingRepository from '../../repositories/ratingRepo';
 import ProductInfoRepository from '../../repositories/productInfoRepo';
 import { productInfoFixt } from '../__fixtures__/productInfo';
@@ -90,7 +90,7 @@ describe('API / PRODUCT POSITIVE', () => {
     rating_create.mockImplementation(async () => ratingFixt);
     productInfo_bulkCreate.mockImplementation(async () => [productInfoFixt, productInfoFixt]);
     product_getProductFullData.mockImplementation(async () => productFixt);
-    jest.mocked(saveImage).mockImplementation(() => 'text');
+    jest.mocked(saveImage).mockImplementation(async () => Promise.resolve(savedImageOutput));
     // @ts-ignore
     const spyTransaction = jest.spyOn(sequelize, 'transaction').mockImplementation((callback) => callback());
     await supertest(createServer())
@@ -135,7 +135,7 @@ describe('API / PRODUCT POSITIVE', () => {
       .mockImplementationOnce(async () => productFixt)
       .mockImplementationOnce(async () => productUpdatedFixt);
     product_update.mockImplementation(async () => productUpdatedFixt);
-    jest.mocked(saveImage).mockImplementation(() => 'text');
+    jest.mocked(saveImage).mockImplementation(async () => Promise.resolve(savedImageOutput));
     jest.mocked(deleteImage).mockImplementation(() => true);
     rating_create.mockImplementation(async () => ratingFixt);
     rating_deleteByOptions.mockImplementation(async () => 1);

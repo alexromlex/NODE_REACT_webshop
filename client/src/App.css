@@ -9,7 +9,9 @@
 .fs-11 {
   font-size: 11px !important;
 }
-
+header {
+  height: 60px;
+}
 .tables > tbody > tr:hover {
   background: #f2f9ff !important;
 }
@@ -18,6 +20,11 @@
 .btn:active {
   outline: none !important;
   box-shadow: none;
+}
+
+.navbar-header {
+  background-color: #7892ac;
+  height: 60px;
 }
 
 .logo {
@@ -212,6 +219,18 @@
   }
 }
 
+@media (min-width: 1280px) {
+  .navbar-header {
+    max-width: 1280px;
+    margin-left: 50%;
+    left: -640px;
+  }
+}
+
 .status_help li {
   list-style: none;
 }
+
+/* .footer_block {
+  height: 200;
+} */

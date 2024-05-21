@@ -1,5 +1,6 @@
 import path from 'path';
 import { productInfoFixt } from './productInfo';
+import { OutputInfo } from 'sharp';
 
 export const productFixt = {
   id: 1,
@@ -33,4 +34,13 @@ export const productUpdatedFixt = {
   toJSON: function () {
     return this;
   },
+};
+
+export const savedImageOutput: OutputInfo = {
+  format: 'image/webp',
+  size: 1256,
+  width: 600,
+  height: 600,
+  channels: 4,
+  premultiplied: false,
 };

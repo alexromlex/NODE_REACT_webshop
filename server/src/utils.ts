@@ -2,22 +2,23 @@ import fs from 'node:fs';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 
+import sharp from 'sharp';
+import { error } from 'node:console';
+
 export const generateImageName = (name: string) => {
   const regex = /[.* +?^${}()%|'"/[\]\\]/g;
   const img_name = name.replaceAll(regex, '_');
-  return img_name + '_' + uuidv4() + '.jpg';
+  return img_name + '_' + uuidv4() + '.webp';
 };
 
-export const saveImage = (imageFile: any, fileName: string) => {
-  console.log('saveImage called!');
-  try {
-    // console.log('SAVE IMAGE: ', path.resolve(path.resolve(__dirname), '..', 'static', fileName));
-    imageFile.mv(path.resolve(path.resolve(__dirname), '../static', fileName));
-    return fileName;
-  } catch (e) {
-    console.log('saveImage Error: ', e);
-    return null;
-  }
+export const saveImage = async (imageFile: any, fileName: string) => {
+  return await sharp(imageFile.data, { animated: imageFile.mimetype === 'image/gif' ? true : false })
+    .toFile(path.resolve(path.resolve(__dirname), '../static', fileName))
+    .then((info) => info)
+    .catch((error) => {
+      console.log('saveImage Error: ', error);
+      return null;
+    });
 };
 
 export const deleteImage = (imageName: string) => {
