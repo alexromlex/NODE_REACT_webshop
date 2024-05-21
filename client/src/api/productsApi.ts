@@ -10,9 +10,7 @@ export async function getProducts(
   sort: string[] | null,
   v: string | null
 ) {
-  const promise = api.get('/product', { params: { typeId, brandId, page, limit, sort, v } });
-  // .then(({ data }) => data);
-  return promise;
+  return api.get('/product', { params: { typeId, brandId, page, limit, sort, v } });
 }
 
 export async function getProduct(id: number) {
@@ -21,17 +19,13 @@ export async function getProduct(id: number) {
 }
 
 export async function createProduct(product: FormData) {
-  const response = await apiAuth.post('/product', product);
-  console.log('create resp: ', response);
-  return response;
+  return apiAuth.post('/product', product);
 }
 
 export async function updateProduct(id: number, data: FormData) {
-  const response = await apiAuth.patch('/product/' + id, data);
-  return response;
+  return await apiAuth.patch('/product/' + id, data);
 }
 
 export async function deleteProduct(id: number) {
-  const response = await apiAuth.delete('/product/' + id);
-  return response;
+  return await apiAuth.delete('/product/' + id);
 }

@@ -2,20 +2,51 @@ export interface CallableFunc {
   (): any;
 }
 
+// USER
+export interface UserInterface {
+  id: number;
+  role: string;
+  email: string;
+  name?: string;
+}
+
+export interface CreateUserInterface {
+  email: string;
+  password: string;
+  role?: string;
+}
+
+export interface AdminUserInterface {
+  id?: number;
+  role: string;
+  email: string;
+}
+
+export interface AdminEditUserInterface extends AdminUserInterface {
+  id: number;
+  password: string;
+}
+
+// TYPES
 export interface TypeInterface {
   id: number;
   name: string;
   brands?: BrandInterface[];
 }
+
+// BRANDS
 export interface BrandInterface {
   id: number;
   name: string;
 }
 
+// PRODUCTS
 export interface ProductInfoInterface {
   id?: number;
   title: string;
   description: string | number;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface ProductInterface {
@@ -32,6 +63,7 @@ export interface ProductInterface {
   quantity?: number;
 }
 
+// RATING
 export interface RatingInterface {
   id: number;
   productId: number;
@@ -41,8 +73,21 @@ export interface RatingInterface {
   userId: number | null;
 }
 
-/* ORDERS */
+// ORDERS
+export interface OrderInterface {
+  [x: string]: any;
+  id: number;
+  amount: number;
+  payment: { name: string; price: number };
+  shipping: { name: string; price: number };
+  invoice: InvoiceInteface;
+  item: OrderItemInterface[];
+  status: 'new' | 'invoiced' | 'released' | 'fulfilled' | 'holded' | 'cancelled';
+  paid: boolean;
+  createdAt: string;
+}
 export interface OrderItemInterface {
+  id?: number;
   name: string;
   info: { title: string; description: string }[];
   price: number;
@@ -52,6 +97,12 @@ export interface OrderItemInterface {
   type_name: string;
 }
 
+export interface OrderModalBodyProps {
+  order: OrderInterface | null;
+  billing: BillingInterface | null;
+}
+
+// INVOICE
 export interface InvoiceInteface {
   id: number;
   number: string;
@@ -87,17 +138,9 @@ export interface InvoiceInteface {
   orderId: number;
 }
 
-export interface OrderInterface {
-  [x: string]: any;
-  id: number;
-  amount: number;
-  payment: { name: string; price: number };
-  shipping: { name: string; price: number };
-  invoice: InvoiceInteface;
-  item: OrderItemInterface[];
-  status: 'new' | 'invoiced' | 'released' | 'fulfilled' | 'holded' | 'cancelled';
-  paid: boolean;
-  createdAt: string;
+// BASKET
+export interface BasketProductProps {
+  product: ProductInterface;
 }
 
 // Toasts
@@ -108,4 +151,40 @@ export interface ToastObjInterface {
   title: string;
   body: string | JSX.Element;
   time?: string;
+}
+
+// Router
+export interface RouteInterface {
+  path?: string | undefined;
+  element?: React.ReactNode | null;
+  private?: null | string;
+  children?: RouteInterface[];
+  errorElement?: React.ReactNode | null;
+}
+// BILLING
+export interface BillingInterface {
+  billing_bank_account: string;
+  billing_fullname: string;
+  billing_country: string;
+  billing_index: string;
+  billing_bank_name: string;
+  billing_tax: string;
+  billing_street: string;
+  billing_bank_info: string;
+  billing_city: string;
+}
+
+// CHARTS
+export interface ChartProps {
+  barColor: string;
+  textColor: string;
+  barsData: number[];
+  barCategories: string[];
+}
+// Edit Delete table component
+export interface EditDeleteTableProps {
+  rows: any[];
+  cols: { name: string; alias?: string; formatter?: any }[]; // name = 'order.invoice.id' will return id by getPropByString()
+  onEdit(obj: object): void;
+  onDelete(id: number): void;
 }

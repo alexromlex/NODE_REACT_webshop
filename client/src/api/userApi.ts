@@ -1,3 +1,4 @@
+import { CreateUserInterface } from '../common/types';
 import { api, apiAuth } from './http';
 
 export const userRegistration = async (email: string, password: string) => {
@@ -22,22 +23,18 @@ export async function getOne(id: number) {
   return data;
 }
 
-export async function createUser(data) {
-  const response = await apiAuth.post('/user', data);
-  return response;
+export async function createUser(data: CreateUserInterface) {
+  return await apiAuth.post('/user', data);
 }
 
 export async function deleteUser(id: number) {
-  const response = await apiAuth.delete('/user/' + id);
-  return response;
+  return await apiAuth.delete('/user/' + id);
 }
 
-export async function updateUser(id: number, values) {
-  const response = await apiAuth.patch('/user/' + id, { ...values });
-  return response;
+export async function updateUser(id: number, values: Record<string, any>) {
+  return await apiAuth.patch('/user/' + id, { ...values });
 }
 
 export async function getMontlyUserRegs(startDate: string | Date, endDate: string | Date) {
-  const response = await apiAuth.post('/user/statistic/monthly_regs', { startDate, endDate });
-  return response;
+  return await apiAuth.post('/user/statistic/monthly_regs', { startDate, endDate });
 }

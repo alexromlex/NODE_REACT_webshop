@@ -1,36 +1,19 @@
 import { Col, Container, Row, Table } from 'react-bootstrap';
 import { NavLink } from 'react-router-dom';
-import { OrderInterface } from '../common/types';
+import { OrderModalBodyProps } from '../common/types';
 import userStore from '../stores/userStore';
-
-interface BillingInterface {
-  billing_bank_account: string;
-  billing_fullname: string;
-  billing_country: string;
-  billing_index: string;
-  billing_bank_name: string;
-  billing_tax: string;
-  billing_street: string;
-  billing_bank_info: string;
-  billing_city: string;
-}
-
-interface OrderModalBodyProps {
-  order: OrderInterface | null;
-  billing: BillingInterface | null;
-}
 
 const OrderModalBody: React.FC<OrderModalBodyProps> = ({ order, billing }) => {
   return (
     <Container fluid>
       <Row className="rounded p-3 bg-warning bg-opacity-25">
-        <Col sm className="">
+        <Col sm>
           <Row>
             <Col className=" col-auto fw-bold" sm="12">
               Date:
             </Col>
             <Col className=" col-auto" sm="auto">
-              {new Date(order?.createdAt).toLocaleString('hu-HU', {
+              {new Date(order!.createdAt).toLocaleString('hu-HU', {
                 dateStyle: 'short',
                 timeStyle: 'short',
                 hourCycle: 'h24',
@@ -38,7 +21,7 @@ const OrderModalBody: React.FC<OrderModalBodyProps> = ({ order, billing }) => {
             </Col>
           </Row>
         </Col>
-        <Col sm className="">
+        <Col sm>
           <Row>
             <Col className=" col-auto fw-bold" sm="12">
               Number:
@@ -48,7 +31,7 @@ const OrderModalBody: React.FC<OrderModalBodyProps> = ({ order, billing }) => {
             </Col>
           </Row>
         </Col>
-        <Col sm className="">
+        <Col sm>
           <Row>
             <Col className=" col-auto fw-bold" sm="12">
               Amount:
@@ -58,7 +41,7 @@ const OrderModalBody: React.FC<OrderModalBodyProps> = ({ order, billing }) => {
             </Col>
           </Row>
         </Col>
-        <Col sm className="">
+        <Col sm>
           <Row>
             <Col className=" col-auto fw-bold" sm="12">
               Status:
@@ -78,7 +61,7 @@ const OrderModalBody: React.FC<OrderModalBodyProps> = ({ order, billing }) => {
           </tr>
         </thead>
         <tbody>
-          {order?.item.map((i) => (
+          {order!.item.map((i) => (
             <tr key={i.id}>
               <td>
                 <NavLink to={'/product/' + i.product_id} className="like_link" target="blank">
@@ -134,17 +117,17 @@ const OrderModalBody: React.FC<OrderModalBodyProps> = ({ order, billing }) => {
           </div>
           <p>Please transfer the balance of your invoice to our bank account listed below</p>
           <p>
-            Please make sure you include your customer number ({userStore.user?.id}) or your order number ({order.id})
+            Please make sure you include your customer number ({userStore.user?.id}) or your order number ({order!.id})
             when you enter the information for your bank transfer. Please transfer the balance to the following account:
           </p>
           <p>
-            Transert to: {billing.billing_fullname}
+            Transert to: {billing!.billing_fullname}
             <br />
-            Bank: {billing.billing_bank_name}
+            Bank: {billing!.billing_bank_name}
             <br />
-            IBAN: {billing.billing_bank_account}
+            IBAN: {billing!.billing_bank_account}
             <br />
-            {billing.billing_bank_info}
+            {billing!.billing_bank_info}
           </p>
           <p>We’ll ship your order as soon as we have received your payment.</p>
           <p>After your order has been processed, you will receive a confirmation email.</p>

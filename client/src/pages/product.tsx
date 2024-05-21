@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Col, Container, Row, Stack } from 'react-bootstrap';
 import StarRating from '../ui/rating/stars';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';

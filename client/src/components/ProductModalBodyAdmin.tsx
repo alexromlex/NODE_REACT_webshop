@@ -19,14 +19,15 @@ const serverUrl = `${window.location['protocol']}//${process.env.VITE_SERVER_HOS
 const getImage = async (imgPath: string | File) => {
   const response = await fetch(serverUrl + '/static/' + imgPath);
   const data = await response.blob();
-  const file = new File([data], imgPath, { type: data.type });
+  const file = new File([data], imgPath as string, { type: data.type });
   return file;
 };
 
 const ProductModalBody: React.FC<ModalBodyProps> = ({ data, onSave }) => {
+  const allowedImageFormats = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/avif'];
   const [error, setError] = useState('');
   const [name, setName] = useState(data && data.name ? data.name : '');
-  const [img, setimage] = useState(null);
+  const [img, setimage] = useState<File | null>(null);
   const [price, setPrice] = useState(data && data.price ? data.price : 0);
   const [rating, setRating] = useState(data && data.rating ? data.rating : 0);
   const [brandId, setBrandId] = useState(data && data.brandId ? data.brandId : '');
@@ -47,45 +48,47 @@ const ProductModalBody: React.FC<ModalBodyProps> = ({ data, onSave }) => {
   }
 
   const saveFormHandle = async (event: Event) => {
+    if (!imageData || !allowedImageFormats.includes(imageData['type'])) return;
     const form = event.currentTarget as HTMLFormElement;
     event.preventDefault();
     if (form.checkValidity() === false) {
       event.stopPropagation();
+      setValidated(true);
+      return;
+    }
+    const productData: Omit<ProductInterface, 'info'> & { info: string | null } = {
+      typeId: Number(typeId),
+      brandId: Number(brandId),
+      name: String(name),
+      price: Number(price),
+      img,
+      rating,
+      info: info.length > 0 ? JSON.stringify(info) : null,
+    };
+    const formData = new FormData();
+    for (const key in productData) formData.append(key, productData[key]);
+    if (!data) {
+      createProduct(formData)
+        .then(({ data }) => {
+          console.log('data: ', data);
+          adminStore.addNewProduct(data);
+          onSave();
+        })
+        .catch((err: Error | AxiosError) => HandleAxiosError(err));
     } else {
-      const productData: ProductInterface = {
-        typeId: Number(typeId),
-        brandId: Number(brandId),
-        name: String(name),
-        price: Number(price),
-        img,
-        rating,
-      };
-      // if ((data && data.rating !== rating) || (!data && rating)) productData.rating = Number(rating);
-      if (info.length > 0) productData.info = JSON.stringify(info);
-      const formData = new FormData();
-      for (const key in productData) formData.append(key, productData[key]);
-      if (!data) {
-        createProduct(formData)
-          .then(({ data }) => {
-            adminStore.addNewProduct(data);
-            onSave();
-          })
-          .catch((err: Error | AxiosError) => HandleAxiosError(err));
-      } else {
-        console.log('formData: ', JSON.stringify(formData, null, 2));
-        updateProduct(data.id!, formData)
-          .then(({ data }) => {
-            adminStore.updateProduct(data);
-            onSave();
-          })
-          .catch((err: Error | AxiosError) => HandleAxiosError(err));
-      }
+      updateProduct(data.id!, formData)
+        .then(({ data }) => {
+          adminStore.updateProduct(data);
+          onSave();
+        })
+        .catch((err: Error | AxiosError) => HandleAxiosError(err));
     }
     setValidated(true);
   };
   const upload = useRef();
 
   const uploadImageHandler = () => {
+    //@ts-ignore
     upload.current.click();
   };
 
@@ -98,16 +101,15 @@ const ProductModalBody: React.FC<ModalBodyProps> = ({ data, onSave }) => {
   }, []);
 
   useEffect(() => {
-    if (img) {
-      const image = new Image();
-      const url = URL.createObjectURL(img);
-      image.src = url;
-      image.onload = () => {
-        const imgSize =
-          img.size / 1048576 >= 0.1 ? (img.size / 1048576).toFixed(2) + ' MB' : (img.size / 1024).toFixed(2) + ' Kb';
-        setImageData({ type: img.type, size: imgSize, dimensions: image.width + ' x ' + image.height });
-      };
-    }
+    if (!img) return;
+    const image = new Image();
+    const url = URL.createObjectURL(img);
+    image.src = url;
+    image.onload = () => {
+      const imgSize =
+        img.size / 1048576 >= 0.1 ? (img.size / 1048576).toFixed(2) + ' MB' : (img.size / 1024).toFixed(2) + ' Kb';
+      setImageData({ type: img.type, size: imgSize, dimensions: image.width + ' x ' + image.height });
+    };
   }, [img]);
 
   const onTypeSelect = async (id: number) => {
@@ -227,10 +229,14 @@ const ProductModalBody: React.FC<ModalBodyProps> = ({ data, onSave }) => {
           <Col sm>
             {imageData &&
               Object.keys(imageData).map((key) => (
-                <div className="mb-3" key={key}>
-                  {key} : {imageData[key]}
+                <div className="mb-1" key={key}>
+                  {key} : {imageData[key]}{' '}
+                  {key === 'type' && !allowedImageFormats.includes(imageData[key]) && (
+                    <span className="badge text-bg-danger">type NOT Allowed!</span>
+                  )}
                 </div>
               ))}
+
             <InputGroup className="mb-3">
               <Form.Control
                 size="sm"
@@ -244,17 +250,24 @@ const ProductModalBody: React.FC<ModalBodyProps> = ({ data, onSave }) => {
               />
               <Button onClick={uploadImageHandler}>Upload</Button>
             </InputGroup>
+            <div className="fs-11">
+              Allowed Image types:
+              <br /> {allowedImageFormats.join(', ')}
+            </div>
           </Col>
         </Row>
         <h6>Specifications:</h6>
-        <ProducInfoAdmin changesGrabber={setInfo} data={info} />
+        <ProducInfoAdmin addProductInfo={setInfo} data={info} />
         {error && (
           <div style={{ color: 'red' }} className="mt-3">
             ERROR: {error}
           </div>
         )}
         <Modal.Footer className="p-0 pt-3 mt-3">
-          <Button variant="primary" type="submit">
+          <Button
+            variant="primary"
+            type="submit"
+            disabled={!(imageData && allowedImageFormats.includes(imageData['type']))}>
             SUBMIT
           </Button>
         </Modal.Footer>

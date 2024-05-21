@@ -21,7 +21,7 @@ class OrderStore {
     try {
       const orders = yield getUserOrders();
       this._orders = orders;
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
     }
   }

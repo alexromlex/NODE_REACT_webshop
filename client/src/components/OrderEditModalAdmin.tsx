@@ -1,33 +1,32 @@
 import { Container, Row, Col, Table, Modal, Button, Form, Badge } from 'react-bootstrap';
-import { OrderInterface } from '../common/types';
 import { useState } from 'react';
 import adminStore from '../stores/adminStore';
 import orderStore from '../stores/orderStore';
 import { statusStyle } from '../common/utils';
+import { OrderInterface } from '../common/types';
 
-interface OrderEditModalAdminProps {
-  order: OrderInterface | null;
+interface OrderEditModalAdminProps extends OrderInterface {
   onSave(): void;
 }
 
-const OrderEditModalAdmin: React.FC<OrderEditModalAdminProps> = ({ order, onSave }) => {
-  const [status, setStatus] = useState(order?.status);
-  const [paid, setPaid] = useState(order?.paid);
+const OrderEditModalAdmin: React.FC<OrderEditModalAdminProps> = (order) => {
+  const [status, setStatus] = useState(order.status);
+  const [paid, setPaid] = useState(order.paid);
   const onSaveHandler = () => {
-    adminStore.updateOrder(order?.id, { status: status, paid });
-    onSave();
+    adminStore.updateOrder(order.id, { status: status, paid });
+    order.onSave();
   };
   return (
     <>
       <Container fluid>
         <Row className="rounded p-3 bg-warning bg-opacity-25">
-          <Col sm className="">
+          <Col sm>
             <Row>
               <Col className=" col-auto fw-bold" sm="12">
                 Date:
               </Col>
               <Col className=" col-auto" sm="auto">
-                {new Date(order?.createdAt).toLocaleString('hu-HU', {
+                {new Date(order.createdAt).toLocaleString('hu-HU', {
                   dateStyle: 'short',
                   timeStyle: 'short',
                   hourCycle: 'h24',
@@ -35,27 +34,27 @@ const OrderEditModalAdmin: React.FC<OrderEditModalAdminProps> = ({ order, onSave
               </Col>
             </Row>
           </Col>
-          <Col sm className="">
+          <Col sm>
             <Row>
               <Col className=" col-auto fw-bold" sm="12">
                 Number:
               </Col>
               <Col className=" col-auto" sm="auto">
-                {order?.id}
+                {order.id}
               </Col>
             </Row>
           </Col>
-          <Col sm className="">
+          <Col sm>
             <Row>
               <Col className=" col-auto fw-bold" sm="12">
                 Amount:
               </Col>
               <Col className=" col-auto" sm="auto">
-                {order?.amount.toLocaleString('hu-HU')} HUF
+                {order.amount.toLocaleString('hu-HU')} HUF
               </Col>
             </Row>
           </Col>
-          <Col sm className="">
+          <Col sm>
             <Row>
               <Col className=" col-auto fw-bold" sm="12">
                 Status:
@@ -64,7 +63,7 @@ const OrderEditModalAdmin: React.FC<OrderEditModalAdminProps> = ({ order, onSave
                 <Form.Select
                   required
                   size="sm"
-                  onChange={(e) => setStatus(String(e.target.value))}
+                  onChange={(e) => setStatus(e.target.value)}
                   defaultValue={status}
                   name="status">
                   {orderStore.orderStatuses.map((s) => (
@@ -86,7 +85,7 @@ const OrderEditModalAdmin: React.FC<OrderEditModalAdminProps> = ({ order, onSave
             </tr>
           </thead>
           <tbody>
-            {order?.item.map((i) => (
+            {order.item.map((i) => (
               <tr key={i.id}>
                 <td>{i.name}</td>
                 <td>{i.price.toLocaleString('hu-HU')} HUF</td>
@@ -94,13 +93,13 @@ const OrderEditModalAdmin: React.FC<OrderEditModalAdminProps> = ({ order, onSave
               </tr>
             ))}
             <tr>
-              <td>SHIPPING ({order?.shipping.name})</td>
-              <td>{order?.shipping.price.toLocaleString('hu-HU')} HUF</td>
+              <td>SHIPPING ({order.shipping.name})</td>
+              <td>{order.shipping.price.toLocaleString('hu-HU')} HUF</td>
               <td>1</td>
             </tr>
             <tr>
-              <td>PAYMENT ({order?.payment.name})</td>
-              <td>{order?.payment.price.toLocaleString('hu-HU')} HUF</td>
+              <td>PAYMENT ({order.payment.name})</td>
+              <td>{order.payment.price.toLocaleString('hu-HU')} HUF</td>
               <td>1</td>
             </tr>
           </tbody>
@@ -108,26 +107,26 @@ const OrderEditModalAdmin: React.FC<OrderEditModalAdminProps> = ({ order, onSave
         <Row className="gx-3">
           <Col className="bg-info bg-opacity-25 rounded p-3 mb-3 mb-sm-0" sm>
             <h6>Buyer</h6>
-            <div>{order?.invoice.buyer.fullNameCompany}</div>
-            <div>{order?.invoice.buyer.country}</div>
+            <div>{order.invoice.buyer.fullNameCompany}</div>
+            <div>{order.invoice.buyer.country}</div>
             <div>
-              {order?.invoice.buyer.postcode} {order?.invoice.buyer.city}
+              {order.invoice.buyer.postcode} {order.invoice.buyer.city}
             </div>
-            <div>{order?.invoice.buyer.street}</div>
-            {order?.invoice.buyer.tax && <div>Tax: {order?.invoice.buyer.tax}</div>}
+            <div>{order.invoice.buyer.street}</div>
+            {order.invoice.buyer.tax && <div>Tax: {order.invoice.buyer.tax}</div>}
           </Col>
           <Col className="bg-info bg-opacity-25 rounded p-3 ms-sm-3" sm>
             <h6>Shipping</h6>
             <div>
-              {order?.invoice.delivery.firstName} {order?.invoice.delivery.lastName}{' '}
+              {order.invoice.delivery.firstName} {order.invoice.delivery.lastName}{' '}
             </div>
-            <div>{order?.invoice.delivery.country}</div>
+            <div>{order.invoice.delivery.country}</div>
             <div>
-              {order?.invoice.delivery.postcode} {order?.invoice.delivery.city}
+              {order.invoice.delivery.postcode} {order.invoice.delivery.city}
             </div>
-            <div>{order?.invoice.delivery.street}</div>
-            <div>{order?.invoice.delivery.delInfo}</div>
-            <div>{order?.invoice.delivery.tel}</div>
+            <div>{order.invoice.delivery.street}</div>
+            <div>{order.invoice.delivery.delInfo}</div>
+            <div>{order.invoice.delivery.tel}</div>
           </Col>
         </Row>
         <Row className="border p-3 mt-3 rounded">
@@ -146,7 +145,7 @@ const OrderEditModalAdmin: React.FC<OrderEditModalAdminProps> = ({ order, onSave
           <Button
             variant="primary"
             type="submit"
-            disabled={status != order?.status || order?.paid != paid ? false : true}
+            disabled={status != order.status || order.paid != paid ? false : true}
             onClick={() => {
               onSaveHandler();
             }}>

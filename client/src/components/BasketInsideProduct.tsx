@@ -1,15 +1,11 @@
 import { useState } from 'react';
 import { InputGroup, Button, Stack } from 'react-bootstrap';
 import { Form } from 'react-bootstrap';
-import { ProductInterface } from '../common/types';
 import basketStore from '../stores/basketStore';
 import { useNavigate } from 'react-router-dom';
 import userStore from '../stores/userStore';
 import { uuid4 } from '../common/utils';
-
-interface BasketProductProps {
-  product: ProductInterface;
-}
+import { BasketProductProps } from '../common/types';
 
 const BasketProduct: React.FC<BasketProductProps> = ({ product }) => {
   const [qty, setQty] = useState(1);

@@ -1,23 +1,18 @@
-import { makeAutoObservable} from 'mobx';
+import { makeAutoObservable } from 'mobx';
 import { createType, deleteType, updateType } from '../api/typesApi';
-import { BrandInterface, ProductInterface, TypeInterface, OrderInterface } from '../common/types';
+import {
+  BrandInterface,
+  ProductInterface,
+  TypeInterface,
+  OrderInterface,
+  CreateUserInterface,
+  AdminUserInterface,
+} from '../common/types';
 import { deleteBrand, createBrand, updateBrand } from '../api/brandsApi';
 import { deleteUser, createUser, updateUser, getUsers } from '../api/userApi';
 import { getAllOrder, updateOrder } from '../api/orderApi';
-import { getSettings, updateSettings } from '../api/settingsApi';
-
-export interface AdminUserInterface {
-  id?: number;
-  role: string;
-  email: string;
-}
-
-export interface AdminEditUserInterface {
-  id: number;
-  role: string;
-  email: string;
-  password: string;
-}
+import { getSettings } from '../api/settingsApi';
+import { updateArray } from '../common/utils';
 
 class AdminStore {
   _types: TypeInterface[];
@@ -42,7 +37,7 @@ class AdminStore {
     this._products = [];
     this._page = 1;
     this._total_pages = 1;
-    this._limit_pages = 6;
+    this._limit_pages = 10;
     this._selectedType = null;
     this._selectedBrand = null;
     this._v = null;
@@ -112,6 +107,10 @@ class AdminStore {
     return this._selectedBrand;
   }
 
+  get v() {
+    return this._v;
+  }
+
   setSettings(v) {
     this._settings = v;
   }
@@ -159,27 +158,15 @@ class AdminStore {
   }
 
   async getSettings() {
-    // console.log('[getSettings] called!');
     return await getSettings();
-  }
-
-  *updateSettings(settings: { name: string; value: string }[]) {
-    // console.log('[updateSettings] called!');
-    try {
-      const resp = yield updateSettings(settings);
-      // console.log('resp: ', resp);
-    } catch (error) {
-      console.log(error);
-    }
   }
 
   *fetchOrders(params = null) {
     try {
       const resp = yield getAllOrder(params);
       if (resp.status === 200) this.setOrders(resp.data);
-      // console.log('ORDERS: ', resp.data);
       return resp;
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
     }
   }
@@ -192,15 +179,15 @@ class AdminStore {
   }
 
   updateProduct(product: ProductInterface) {
-    this.updateArray(this._products, { id: product.id, ...product });
+    updateArray(this._products, { id: product.id, ...product });
   }
 
-  *updateOrder(id: number, values: { status: string }) {
+  *updateOrder(id: number, values: Record<string, any>) {
     try {
       const res = yield updateOrder(id, values);
-      if (res.status === 200) this.updateArray(this._orders, { id: id, ...res.data });
+      if (res.status === 200) updateArray(this._orders, { id: id, ...res.data });
       return res;
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
       return error.response;
     }
@@ -219,28 +206,27 @@ class AdminStore {
       const resp = yield deleteUser(id);
       this._users = this._users.filter((t) => t.id !== id);
       return resp;
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
       return error.response;
     }
   }
-  *createUser(data: AdminUserInterface) {
+  *createUser(data: CreateUserInterface) {
     try {
       const resp = yield createUser(data);
-      // console.log('createUser resp: ', resp);
       this._users.unshift(resp.data.user);
       return resp;
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
       return error.response;
     }
   }
-  *updateUser(id: number, values) {
+  *updateUser(id: number, values: Record<string, any>) {
     try {
       const res = yield updateUser(id, values);
-      this.updateArray(this._users, { id: id, ...values });
+      updateArray(this._users, { id: id, ...values });
       return res;
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
       return error.response;
     }
@@ -251,7 +237,7 @@ class AdminStore {
       const resp = yield deleteBrand(id);
       this._brands = this._brands.filter((t) => t.id !== id);
       return resp;
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
       return error.response;
     }
@@ -261,18 +247,18 @@ class AdminStore {
       const resp = yield createBrand(name);
       this._brands.unshift(resp.data);
       return resp;
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      console.error(error);
       return error.response;
     }
   }
-  *updateBrand(id: number, values) {
+  *updateBrand(id: number, values: Record<string, any>) {
     try {
       const res = yield updateBrand(id, values);
-      this.updateArray(this._brands, { id: id, ...values });
+      updateArray(this._brands, { id: id, ...values });
       return res;
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      console.error(error);
       return error.response;
     }
   }
@@ -282,17 +268,17 @@ class AdminStore {
       const resp = yield deleteType(id);
       this._types = this._types.filter((t) => t.id !== id);
       return resp;
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      console.error(error);
       return error.response;
     }
   }
-  *createType(name: string, brands: string[]) {
+  *createType(name: string, brands: number[]) {
     try {
       const resp = yield createType(name, brands);
       this._types.unshift(resp.data);
       return resp;
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
       return error.response;
     }
@@ -300,17 +286,11 @@ class AdminStore {
   *updateType(id: number, name: string, brands: number[]) {
     try {
       const res = yield updateType(id, name, brands);
-      this.updateArray(this._types, { id, name });
+      updateArray(this._types, { id, name });
       return res;
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
       return error.response;
-    }
-  }
-  updateArray(array, item) {
-    const indx = array.findIndex((i) => i.id === item.id, -1);
-    if (indx > -1) {
-      return (array[indx] = { ...array[indx], ...item });
     }
   }
 }

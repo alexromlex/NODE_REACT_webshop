@@ -1,31 +1,25 @@
 import { api, apiAuth } from './http';
 
 export async function getSettings() {
-    const response = await apiAuth.get('/settings/');
-    return response;
+  return await apiAuth.get('/settings/');
 }
 
 export async function updateSettings(settings: { name: string; value: string }[]) {
-    const response = await apiAuth.patch('/settings/', { settings });
-    return response;
+  return await apiAuth.patch('/settings/', { settings });
 }
 
 export async function getMainSettings() {
-    const response = await api.get('/settings/main/');
-    return response;
+  return await api.get('/settings/main/');
 }
 
 export async function getGenTermsSettings() {
-    const response = await api.get('/settings/genterms/');
-    return response;
+  return await api.get('/settings/genterms/');
 }
 
 export async function getPrivacyCondSettings() {
-    const response = await api.get('/settings/privacy/');
-    return response;
+  return await api.get('/settings/privacy/');
 }
 
 export async function getBillingSettings() {
-    const response = await apiAuth.get('/settings/billing/');
-    return response;
+  return await apiAuth.get('/settings/billing/');
 }

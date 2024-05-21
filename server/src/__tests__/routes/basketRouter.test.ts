@@ -3,7 +3,7 @@ import BasketRepository from '../../repositories/basketRepo';
 import { createServer } from '../../server';
 import jwt from 'jsonwebtoken';
 import { userFixt } from '../__fixtures__/users';
-import { basketTempFixt, basketUserFixt } from '../__fixtures__/basket';
+import { basketUserFixt } from '../__fixtures__/basket';
 import BasketProductRepository from '../../repositories/basketProductRepo';
 import ProductRepository from '../../repositories/productRepo';
 import { productFixt } from '../__fixtures__/product';

@@ -18,21 +18,21 @@ interface PropsInterface {
 }
 
 const ProductList: React.FC<PropsInterface> = ({ type, brand, page, limit, sort, v }) => {
-  const [data, setData] = useState(null);
+  const [data, setData] = useState<any>(null);
   const navigator = useNavigate();
   useEffect(() => {
-    const data = promiseWrapper(
+    const dataPromise = promiseWrapper(
       getProducts(type, brand, page, limit, sort, v)
         .then(({ data }) => {
-          productStore.setTotalPages(data.count);
+          productStore.setProducts(data.rows);
+          productStore.setTotalPages(Math.ceil(data.count / productStore.limit_pages));
           return data;
         })
-        .catch((error) => null),
+        .catch(() => null),
       0
     );
-    setData(data);
+    setData(dataPromise);
   }, [type, brand, page, limit, sort, v]);
-  console.log('data: ', data);
   return !data ? (
     data
   ) : data.rows.length > 0 ? (

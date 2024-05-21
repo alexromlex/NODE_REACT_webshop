@@ -4,5 +4,6 @@ export default function (err: ApiError, req: Request, res: Response, next: NextF
   if (err instanceof ApiError) {
     return res.status(err.status).json({ message: err.message });
   }
-  return res.status(500).json({ message: "Can't inentify error" });
+  console.error('errorHandler: ', err);
+  return res.status(500).json({ message: "Can't inentify error, see logs.." });
 }

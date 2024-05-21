@@ -3,15 +3,9 @@ import HighchartsReact from 'highcharts-react-official';
 import { useRef } from 'react';
 import highchartsAccessibility from 'highcharts/modules/accessibility';
 import { observer } from 'mobx-react-lite';
+import { ChartProps } from '../common/types';
 
 highchartsAccessibility(Highcharts);
-
-interface ChartProps {
-  barColor: string;
-  textColor: string;
-  barsData: number[];
-  barCategories: string[];
-}
 
 const ChartBestSellers: React.FC<ChartProps> = ({ barColor, textColor, barsData, barCategories }) => {
   const chartOptions = {
@@ -48,6 +42,7 @@ const ChartBestSellers: React.FC<ChartProps> = ({ barColor, textColor, barsData,
           inside: true,
           verticalAlign: 'top',
           formatter: function () {
+            //@ts-ignore
             return this.key;
           },
           y: 3, // 10 pixels down from the top
@@ -61,6 +56,7 @@ const ChartBestSellers: React.FC<ChartProps> = ({ barColor, textColor, barsData,
     tooltip: {
       followPointer: true,
       formatter: function () {
+        //@ts-ignore
         return `<b>${this.key}</b>: ${this.y}`;
       },
     },

@@ -11,7 +11,7 @@ import { getAllOrder } from '../../api/orderApi';
 
 const OrdersAdmin = () => {
   const [modalShow, setModalShow] = useState(false);
-  const [editOrder, setEditOrder] = useState<OrderInterface | null>(null);
+  const [editOrder, setEditOrder] = useState<OrderInterface | {}>({});
   const [modalTitle, setModalTitle] = useState('');
   const [filter, setFilter] = useState<String | null>(null);
   const [filtered, setFiltered] = useState<OrderInterface[]>([]);
@@ -116,21 +116,13 @@ const OrdersAdmin = () => {
         />
       </Container>
       <ModalWindow
-        body={
-          <OrderEditModalAdmin
-            order={editOrder}
-            onSave={() => {
-              setModalShow(false);
-              setEditOrder(null);
-            }}
-          />
-        }
+        body={<OrderEditModalAdmin {...(editOrder as OrderInterface)} onSave={() => setModalShow(false)} />}
         title={modalTitle}
         modalProps={{
           show: modalShow,
           onHide: () => {
             setModalShow(false);
-            setEditOrder(null);
+            // setEditOrder(null);
           },
           size: 'lg',
           centered: true,

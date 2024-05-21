@@ -80,7 +80,7 @@ const ShopPage = () => {
           </div>
           <Row className="m-0 p-0">
             <Col className="m-0 p-0 d-flex align-items-center justify-content-end pe-3 mb-3">
-              {productStore.total_pages > 1 && <SortProduct />}
+              <SortProduct />
             </Col>
             <Col xs={'auto'} className="m-0 p-0 mb-3">
               {productStore.total_pages > 1 && (

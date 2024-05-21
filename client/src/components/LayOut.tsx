@@ -9,7 +9,7 @@ const LayOut = () => {
       </header>
       <main
         datatype="main-container"
-        className={'main container-xxl p-0 m-0 justify-content-center align-items-center'}>
+        className={'main container-xxl p-0 m-0 justify-content-center align-items-center pt-3'}>
         <Outlet />
       </main>
       <footer className={'d-flex p-3 mt-5 footer_block justify-content-center align-items-center'}>

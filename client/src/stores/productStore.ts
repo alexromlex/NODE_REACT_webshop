@@ -16,18 +16,6 @@ class ProductStore {
 
   _searchType: string | null;
 
-  test_brands = [
-    { id: 1, name: 'brand' },
-    { id: 2, name: 'brand' },
-    { id: 3, name: 'brand' },
-    { id: 4, name: 'brand' },
-    { id: 5, name: 'brand' },
-    { id: 6, name: 'brand' },
-    { id: 7, name: 'brand' },
-    { id: 8, name: 'brand' },
-    { id: 9, name: 'brand' },
-  ];
-
   constructor() {
     makeAutoObservable(this);
     this._selectedType = null;
@@ -44,7 +32,6 @@ class ProductStore {
   }
 
   setSearchSort(v: [string, string]) {
-    // console.log('setSearchSort called, ', v);
     this._sort = v;
   }
 
@@ -53,15 +40,11 @@ class ProductStore {
   }
 
   setPage(p: number) {
-    // console.log('[setPage] called! page: ', p);
     this._page = p;
   }
   setTotalPages(p: number) {
     this._total_pages = p;
   }
-  // setLimitPages(p: number) {
-  //     this._limit_pages = p;
-  // }
 
   setTypes(data: TypeInterface[]) {
     this._types = data;
@@ -81,23 +64,6 @@ class ProductStore {
 
   setV(v: string) {
     this._v = v;
-  }
-
-  *fetchProducts() {
-    yield getProducts(
-      this._selectedType ? this.selectedType.id : null,
-      this.selectedBrand ? this.selectedBrand.id : null,
-      this.page,
-      this.limit_pages,
-      this._sort,
-      this._v
-    )
-      .then((data) => {
-        this.setProducts(data.rows);
-        // console.log('data: ', data);
-        this.setTotalPages(data.count);
-      })
-      .catch((e) => console.log(e));
   }
 
   get searchType() {

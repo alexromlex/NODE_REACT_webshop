@@ -10,7 +10,6 @@ export default abstract class BaseRepo<A> {
   }
 
   async getAll(options: FindOptions): Promise<A[]> {
-    // if (!Object.keys(options).includes('order')) options.order = this.default_order;
     return this.model.findAll({
       ...options,
       //@ts-ignore

@@ -8,7 +8,7 @@ interface PagesComponentProps {
 }
 
 const PagesComponent: React.FC<PagesComponentProps> = ({ totalPages, limitPages }) => {
-  const pages = Array.from({ length: Math.ceil(totalPages / limitPages) }, (_, i) => i + 1);
+  const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
   const [searchParams, setSearchParams] = useSearchParams();
   let currentPage = Number(searchParams.get('page'));
   if (currentPage === 0) currentPage = 1;

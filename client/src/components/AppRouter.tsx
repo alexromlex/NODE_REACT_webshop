@@ -1,4 +1,4 @@
-import { useLocation, useRoutes } from 'react-router-dom';
+import { RouteObject, useLocation, useRoutes } from 'react-router-dom';
 import PageNotFound from '../pages/404';
 import ProductPage from '../pages/product';
 import AuthPage from '../pages/auth';
@@ -15,21 +15,13 @@ import CheckoutSuccess from '../pages/checkoutSuccess';
 import TermsConditionsPage from '../pages/general_terms';
 import PrivacyPolicyPage from '../pages/privacy_policy';
 import PageError from '../pages/403';
+import { RouteInterface } from '../common/types';
 
-export interface RouteInterface {
-  path: string;
-  element: React.ReactElement;
-  private: null | string;
-  children?: RouteInterface[];
-  errorElement?: React.FC;
-}
 const AppRouter = () => {
-  // console.log('[AppRouter] called!');
   const location = useLocation();
   const AllRoutes = [
     {
       path: '/',
-      // element: <ShopPage />,
       element: <LayOut />,
       errorElement: <PageNotFound />,
       private: null,
@@ -111,8 +103,8 @@ const AppRouter = () => {
     { path: '*', element: <PageNotFound />, private: null },
   ];
 
-  function filterRoutes(routes) {
-    const filteredAllRouts = [];
+  function filterRoutes(routes: RouteInterface[]): RouteObject[] {
+    const filteredAllRouts: RouteObject[] = [];
 
     for (const route of routes) {
       if (route.children) {
@@ -123,7 +115,6 @@ const AppRouter = () => {
         continue;
       }
       if (!userStore.isAuth) {
-        // console.log('not logged...');
         if ('USER'.includes(route.private)) {
           route.element = <AuthPage returnUrl={location.pathname} />;
           filteredAllRouts.push(route);
@@ -143,7 +134,7 @@ const AppRouter = () => {
 
     return filteredAllRouts;
   }
-
+  //@ts-ignore
   return useRoutes(filterRoutes(AllRoutes));
 };
 

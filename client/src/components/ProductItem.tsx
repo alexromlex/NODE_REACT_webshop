@@ -19,7 +19,9 @@ const ProductItem: React.FC<ProductItemProps> = ({ product }) => {
         <Card.Img
           variant="top"
           src={serverUrl + '/static/' + product.img}
-          style={{ height: 300, width: 'auto', objectFit: 'contain' }}
+          style={{ width: 'auto', objectFit: 'contain' }}
+          height={300}
+          alt={product.name}
         />
         <Card.Body>
           <Card.Title>{product.name}</Card.Title>

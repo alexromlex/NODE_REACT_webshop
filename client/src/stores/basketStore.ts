@@ -18,7 +18,6 @@ class BasketStore {
   }
 
   get basketProductQuantity() {
-    // console.log('[basketProductQuantity] called!');
     let q = 0;
     if (this._basket.size === 0) return 0;
     for (const el of this._basket.values()) {
@@ -88,13 +87,11 @@ class BasketStore {
   }
 
   *getBasket(userId: number | undefined = undefined, productId: number | undefined = undefined) {
-    // console.log('[getBasket] called');
     const { counts, products } = yield getBasket(userId, productId);
     if (!products) return;
-    products.forEach((el) => {
-      this._basket.set(el.id, { ...el, quantity: counts[el.id] });
+    products.forEach((el: ProductInterface) => {
+      this._basket.set(el.id!, { ...el, quantity: counts[el.id!] });
     });
-    // console.log('getBasket BASKET: ', toJS(this._basket));
   }
 }
 export default new BasketStore();

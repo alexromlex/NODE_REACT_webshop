@@ -1,20 +1,17 @@
 import { api } from './http';
 
 export async function getBasket(userId: number | undefined = undefined, productId: number | undefined = undefined) {
-  const resp = await api.post('/basket', { user_id: userId, product_id: productId });
-  return resp.data;
+  const {data} = await api.post('/basket', { user_id: userId, product_id: productId });
+  return data;
 }
 
 export async function addToBasket(productId: number, quantity: number) {
-  const resp = await api.post('/basket/add', { product_id: productId, quantity });
-  return resp;
+  return  await api.post('/basket/add', { product_id: productId, quantity });
 }
 export async function emptyBasket() {
-  const resp = await api.get('/basket/empty');
-  return resp;
+  return  await api.get('/basket/empty');
 }
 
 export async function deleteFromBasket(productId: number, quantity: number) {
-  const resp = await api.post('/basket/delete', { product_id: productId, quantity });
-  return resp;
+  return  await api.post('/basket/delete', { product_id: productId, quantity });
 }

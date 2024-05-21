@@ -1,5 +1,12 @@
 import { v4 as uuidv4 } from 'uuid';
 
+export function updateArray(array: Record<string, any>[], item: Record<string, any>) {
+  const indx = array.findIndex((i) => i.id === item.id, -1);
+  if (indx > -1) {
+    return (array[indx] = { ...array[indx], ...item });
+  }
+}
+
 export const getDateStart = (periodMonth: number, fromDate: null | Date = null) => {
   const date = fromDate ? new Date(fromDate) : new Date();
   return new Date(date.setMonth(date.getMonth() - periodMonth));
@@ -8,9 +15,9 @@ export const getDateStart = (periodMonth: number, fromDate: null | Date = null) 
 export const monthShortNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 export function getLastMonthShortNames(m: number) {
-  const date = new Date();
-  let monthNow = date.getMonth();
-  const monthResults = { indexes: [], names: [] };
+  const date: Date = new Date();
+  let monthNow: number = date.getMonth();
+  const monthResults: { indexes: number[]; names: string[] } = { indexes: [], names: [] };
   while (m > 0) {
     monthResults.names.unshift(monthShortNames[monthNow]);
     monthResults.indexes.unshift(monthNow);
@@ -57,6 +64,7 @@ export const generatePagination = (currentPage: number, totalPages: number) => {
 export const regexName = (name: string, replacer: string, toLower = true) => {
   const regex = /[.* %?^${}()|'"/[\]\\]/g;
   if (toLower) name = '' + name.toLowerCase();
+  //@ts-ignore
   return '' + name.replaceAll(regex, replacer);
 };
 
@@ -66,6 +74,7 @@ export const uuid4 = () => {
 
 export function getCookie(name: string | number) {
   const matches = document.cookie.match(
+    //@ts-ignore
     new RegExp('(?:^|; )' + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + '=([^;]*)')
   );
   return matches ? decodeURIComponent(matches[1]) : undefined;

@@ -23,11 +23,11 @@ const ProductsAdmin = () => {
   const searchType = String(searchParams.get('type')) || null;
   const searchBrand = String(searchParams.get('brand')) || null;
   const searchPage = Number(searchParams.get('page') || adminStore.page);
-  const [searchV, setSearchV] = useState(String(searchParams.get('v')) || null);
+  const [searchV, setSearchV] = useState(String(searchParams.get('v')));
 
   useEffect(() => {
     if (searchPage > 0) adminStore.setPage(searchPage);
-    if (searchV !== 'null') adminStore.setV(searchV);
+    if (searchV && searchV !== 'null') adminStore.setV(searchV);
 
     const fetchData = async () => {
       // TYPES
@@ -70,7 +70,7 @@ const ProductsAdmin = () => {
       )
         .then(({ data }) => {
           adminStore.setProducts(data.rows);
-          adminStore.setTotalPages(data.count);
+          adminStore.setTotalPages(Math.ceil(data.count / adminStore.limit_pages));
         })
         .catch((e) => console.error(e));
     };

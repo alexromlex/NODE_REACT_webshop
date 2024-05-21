@@ -2,8 +2,6 @@ import Router from 'express';
 import hasRoles from '../middleware/checkUserRoleMiddleware';
 import sequelize from '../database/connect';
 import { NextFunction, Request, Response } from 'express';
-import { User } from '../database/models/models';
-import bcrypt from 'bcrypt';
 import SettingsService from '../services/settingsService';
 import UserService from '../services/userService';
 const router = Router();
@@ -25,7 +23,7 @@ const defaultSettings = [
 ];
 
 router.route('/db_sync').get(
-  // hasRoles(['ADMIN']),
+  // hasRoles(['ADMIN']),         // uncomment after succesfully syncronisation!
   (req: Request, res: Response, next: NextFunction) => {
     const log: string[] = [];
     Promise.all([
@@ -53,7 +51,11 @@ router.route('/db_sync').get(
         ])
           .then(() => {
             res.setHeader('Content-type', 'text/html');
-            res.send(`<p>${log.join('</br>')}</p>`);
+            res.send(
+              `<p>${log.join('</br>')}</p><br /><p><a href="http://localhost:${
+                process.env.FRONTEND_PORT
+              }">Go to website</p>`
+            );
           })
           .catch((error) => {
             res.json(error);

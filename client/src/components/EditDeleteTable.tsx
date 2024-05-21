@@ -4,16 +4,12 @@ import ButtonDelete from '../ui/buttons/delete';
 import { getPropByString } from '../common/utils';
 import { useState } from 'react';
 import { observer } from 'mobx-react-lite';
-interface EditDeleteProps {
-  rows: any[];
-  cols: { name: string; alias?: string; formatter?: any }[]; // name = 'order.invoice.id' will return id by getPropByString()
-  onEdit(obj: object): void;
-  onDelete(id: number): void;
-}
-const EditDeleteTable: React.FC<EditDeleteProps> = (props) => {
+import { EditDeleteTableProps } from '../common/types';
+
+const EditDeleteTable: React.FC<EditDeleteTableProps> = (props) => {
   const serverUrl = `${window.location['protocol']}//${process.env.VITE_SERVER_HOST}:` + process.env.VITE_SERVER_PORT;
   const [showModal, setShowModal] = useState(false);
-  const [delId, setDelId] = useState(null);
+  const [delId, setDelId] = useState<number | null>(null);
   const onDeleteHandler = (id: number) => {
     setShowModal(true);
     setDelId(id);
@@ -38,7 +34,15 @@ const EditDeleteTable: React.FC<EditDeleteProps> = (props) => {
                 {props.cols.map((col, indx) => (
                   <td className="align-middle" key={t[col.name] + 'td_' + indx}>
                     {col.name === 'img' ? (
-                      <Image src={serverUrl + '/static/' + t[col.name]} rounded thumbnail style={{ maxHeight: 100 }} />
+                      <Image
+                        key={t[col.name]}
+                        src={serverUrl + '/static/' + t[col.name]}
+                        rounded
+                        thumbnail
+                        style={{ maxHeight: 100 }}
+                        alt="Image"
+                        // decoding="sync"
+                      />
                     ) : Array.from(col.name).includes('.') ? (
                       col.formatter ? (
                         col.formatter(getPropByString(t, col.name))
@@ -74,7 +78,7 @@ const EditDeleteTable: React.FC<EditDeleteProps> = (props) => {
           <Button
             variant="primary"
             onClick={() => {
-              props.onDelete(delId);
+              props.onDelete(delId!);
               setShowModal(false);
               setDelId(null);
             }}>
