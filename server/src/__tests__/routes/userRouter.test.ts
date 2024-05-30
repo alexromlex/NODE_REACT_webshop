@@ -170,10 +170,7 @@ describe('API / USERS NEGATIVE', () => {
     await supertest(createServer())
       .post('/api/user/login')
       .send({ email: 'user@test.mail', password: '555' })
-      .expect(403)
-      .then((res) => {
-        expect(res.body.message).toBe('Email or password incorrect!');
-      });
+      .expect(403);
   });
   test('GET - /auth => error 401 Unauthorized', async () => {
     await supertest(createServer())

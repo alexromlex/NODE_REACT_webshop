@@ -3,7 +3,6 @@ import { Basket, BasketInterface } from '../database/models/models';
 import { FindOptions } from 'sequelize';
 
 export interface BasketRepoInterface {
-  // getBasket(options?: FindOptions): Promise<BasketInterface | null>;
   create(values: Record<string, any>): Promise<BasketInterface>;
   getOneByOptions(options: FindOptions): Promise<BasketInterface | null>;
   deleteByOptions(options: FindOptions): Promise<number>;

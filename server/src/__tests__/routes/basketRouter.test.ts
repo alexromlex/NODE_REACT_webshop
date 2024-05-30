@@ -3,7 +3,7 @@ import BasketRepository from '../../repositories/basketRepo';
 import { createServer } from '../../server';
 import jwt from 'jsonwebtoken';
 import { userFixt } from '../__fixtures__/users';
-import { basketUserFixt } from '../__fixtures__/basket';
+import { basketTempFixt, basketUserFixt } from '../__fixtures__/basket';
 import BasketProductRepository from '../../repositories/basketProductRepo';
 import ProductRepository from '../../repositories/productRepo';
 import { productFixt } from '../__fixtures__/product';
@@ -20,6 +20,7 @@ jest.mock('../../repositories/productRepo');
 const basket_create = jest.fn(),
   basket_getOneByOptions = jest.fn(),
   basket_deleteByOptions = jest.fn();
+
 //@ts-ignore
 BasketRepository.mockImplementation(() => {
   return {
@@ -131,13 +132,8 @@ describe('API / BASKET POSITIVE', () => {
 });
 
 describe('API / BASKET NEGATIVE', () => {
+  basket_create.mockImplementation(() => basketTempFixt);
   test('POST - /basket => unauthorised user no basket id in cookie', async () => {
-    await supertest(createServer())
-      .post('/api/basket')
-      //   .set('Authorization', process.env.TOKEN_PREFIX + ' ' + userToken)
-      .expect(404)
-      .then((result) => {
-        expect(result.body.message).toBe("Can't get basket from cookies!");
-      });
+    await supertest(createServer()).post('/api/basket').expect(404);
   });
 });

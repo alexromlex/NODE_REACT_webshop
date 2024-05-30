@@ -1,7 +1,8 @@
-import { FindOptions, Optional } from 'sequelize';
+import { FindOptions } from 'sequelize';
 import BrandRepository, { BrandRepoInterface } from '../repositories/brandRepo';
 import { BrandInterface } from '../database/models/models';
 import TypeService from './typeService';
+import ApiError from '../errors/apiError';
 
 export interface BrandServiceInterface {
   getAllBrands(options?: FindOptions): Promise<BrandInterface[]>;
@@ -12,7 +13,6 @@ export interface BrandServiceInterface {
 
 export default class BrandService implements BrandServiceInterface {
   private readonly brandRepo: BrandRepoInterface;
-
   constructor() {
     this.brandRepo = new BrandRepository();
   }
@@ -21,6 +21,7 @@ export default class BrandService implements BrandServiceInterface {
     return await this.brandRepo.getAll(options);
   }
   async createBrand(name: string, types: number[]) {
+    if (!name) throw ApiError.invalid('name is reqired');
     const brand = await this.brandRepo.create({ name });
     if (brand && types && types.length > 0) {
       const _types = await new TypeService().getAllTypes({ where: { id: types } });
@@ -32,21 +33,21 @@ export default class BrandService implements BrandServiceInterface {
     return brand;
   }
   async updateBrand(id: number, values: Record<string, any>) {
-    // console.log('[SERVICE updateType] called!');
+    if (!id) throw ApiError.invalid('id is reqired');
     let brand = await this.brandRepo.getById(id);
-    if (brand) {
-      brand = await this.brandRepo.update(brand, { name: values.name });
-      if (values.brands) {
-        const _types = await new TypeService().getAllTypes({ where: { id: values.brands } });
-        //@ts-ignore
-        await brand.setTypes(_types);
-        //@ts-ignore
-        brand.setDataValue('types', _types);
-      }
+    if (!brand) throw ApiError.notFound('Brand not found');
+    brand = await this.brandRepo.update(brand, { name: values.name });
+    if (values.brands) {
+      const _types = await new TypeService().getAllTypes({ where: { id: values.brands } });
+      //@ts-ignore
+      await brand.setTypes(_types);
+      //@ts-ignore
+      brand.setDataValue('types', _types);
     }
     return brand;
   }
   async deleteBrand(id: number) {
+    if (!id) throw ApiError.invalid('id is reqired');
     return await this.brandRepo.delete(id);
   }
 }

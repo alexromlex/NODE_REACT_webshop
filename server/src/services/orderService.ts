@@ -1,4 +1,4 @@
-import { Filterable, FindOptions, IncludeOptions, Op, Optional } from 'sequelize';
+import { FindOptions, Op } from 'sequelize';
 import OrderRepoInterface from '../repositories/orderRepo';
 import OrderRepository from '../repositories/orderRepo';
 import { Brand, Invoice, OrderInterface, OrderItem, ProductInfo, Type } from '../database/models/models';
@@ -13,66 +13,58 @@ function sliceObject(obj: any, len: number) {
   return Object.fromEntries(p.map((v) => [v, obj[v]]));
 }
 export interface OrderServiceInterface {
-  getAllOrder(values: Record<string, any>): Promise<OrderInterface[]>;
-  getUserOrders(user: Record<string, any>): Promise<OrderInterface[]>;
+  getAllOrder(options?: FindOptions): Promise<OrderInterface[]>;
+  getUserOrders(userId: number): Promise<OrderInterface[]>;
   updateOrder(id: number, values: Record<string, any>): Promise<OrderInterface | null>;
-  cancelOrderByUser(id: number, user: Record<string, any>): Promise<OrderInterface | null>;
+  cancelOrderByUser(id: number, userId: number): Promise<OrderInterface | null>;
   newOrder(values: Record<string, any>): Promise<{ orderId: number }>;
-  getOrderStatisticByStatus(values: Record<string, any>): Promise<any>;
-  getOrderStatisticAOV(values: Record<string, any>): Promise<any>;
-  getOrderProductBestSellers(values: Record<string, any>): Promise<any>;
-  countOrderByStatus(values: Record<string, any>): Promise<any>;
-  monthlySales(values: Record<string, any>): Promise<any>;
+  getOrderStatisticByStatus(startDate?: Date, endDate?: Date): Promise<any>;
+  getOrderStatisticAOV(startDate?: Date, endDate?: Date): Promise<any>;
+  getOrderProductBestSellers(startDate?: Date, endDate?: Date): Promise<any>;
+  countOrderByStatus(statusFilter?: string[]): Promise<any>;
+  monthlySales(startDate?: Date, endDate?: Date, excludeStatuses?: string[]): Promise<any>;
 }
 export default class OrderService implements OrderServiceInterface {
-  name: string;
   private readonly orderRepo: OrderRepoInterface;
   orderStatuses = ['new', 'invoiced', 'released', 'fulfilled', 'holded', 'cancelled'];
   constructor() {
     this.orderRepo = new OrderRepository();
-    this.name = 'OrderService';
   }
 
-  async getAllOrder(values: Record<string, any> = {}) {
-    // console.log(`[${this.name} getAllOrder] called!`);
-    // console.log('options: ', options);
-    const options: Record<string, any> = { where: {} };
-    if (values.status && this.orderStatuses.includes(String(values.status))) options.where.status = values.status;
-    if (values.paid) options.where.paid = values.paid;
-    return await this.orderRepo.getAll({ ...options });
+  async getAllOrder(options: FindOptions = {}) {
+    return await this.orderRepo.getAll(options);
   }
 
-  async getUserOrders(user: Record<string, any>) {
-    // console.log(`[${this.name} getUserOrders] called!`);
-    return await this.orderRepo.getAll({ where: { userId: user.id }, order: [['createdAt', 'DESC']] });
+  async getUserOrders(userId: number) {
+    if (!userId) throw ApiError.invalid('userId is reqired!');
+    return await this.orderRepo.getAll({ where: { userId }, order: [['createdAt', 'DESC']] });
   }
 
   async updateOrder(id: number, values: Record<string, any>) {
-    // console.log(`[${this.name} updateOrder] called!`);
+    if (!id) throw ApiError.invalid('order id is required');
+    if (!values) throw ApiError.invalid('values are empty or missing');
     let order = await this.orderRepo.getById(id);
-    // console.log('order found: ', order);
-    if (order) {
-      order = await this.orderRepo.update(order, values);
-    }
+    if (!order) throw ApiError.notFound('Order not found!');
+    order = await this.orderRepo.update(order, values);
     return order;
   }
 
-  async cancelOrderByUser(id: number, user: Record<string, any>) {
-    // console.log(`[${this.name} cancelOrderByUser] called!'`);
-    let order = await this.orderRepo.getByOptions({ where: { id: id, userId: user.id } });
-    if (order) {
-      if (order.status != 'new') throw ApiError.invalid('Order status NOT new');
-      order = await this.orderRepo.update(order, { status: 'cancelled' });
-    }
+  async cancelOrderByUser(id: number, userId: number) {
+    if (!id) throw ApiError.invalid('order id is required');
+    if (!userId) throw ApiError.invalid('user data is required');
+    let order = await this.orderRepo.getByOptions({ where: { id, userId } });
+    if (!order) throw ApiError.notFound('Order not found!');
+    if (order.status != 'new') throw ApiError.invalid('Order status NOT new');
+    order = await this.orderRepo.update(order, { status: 'cancelled' });
     return order;
   }
 
   async newOrder(values: Record<string, any>) {
-    // get basket, find products, create order, delete basket
+    if (!values) throw ApiError.invalid('values are empty or missing');
     try {
       return await sequelize.transaction(async () => {
         const basketService = new BasketService();
-        const basket = await basketService.getBasket({ where: { userId: values.user.id } });
+        const basket = await basketService.getBasket(undefined, values.user.id);
         if (!basket) throw ApiError.notFound('Cant find user basket!');
 
         const products = await new ProductService().getAllProduct({
@@ -125,7 +117,7 @@ export default class OrderService implements OrderServiceInterface {
         );
         if (!order) throw ApiError.notFound('Cant create new order!');
 
-        await basketService.deleteProductFromBasketByOptions({ where: { basketId: basket.id } });
+        await basketService.emptyBasket(basket.id);
         return { orderId: order.id };
       });
     } catch (error: any) {
@@ -133,10 +125,9 @@ export default class OrderService implements OrderServiceInterface {
     }
   }
 
-  async getOrderStatisticByStatus(values: Record<string, any>) {
+  async getOrderStatisticByStatus(startDate?: Date, endDate?: Date) {
     const condition: any = { where: {}, raw: false };
-    if (values.startDate && values.endDate)
-      condition.where['createdAt'] = { [Op.between]: [values.startDate, values.endDate] };
+    if (startDate && endDate) condition.where['createdAt'] = { [Op.between]: [startDate, endDate] };
     const grouped: any = {};
     const orders = await this.orderRepo.getAll({ ...condition, include: [] });
     orders.forEach((el: any) => {
@@ -152,10 +143,9 @@ export default class OrderService implements OrderServiceInterface {
     return grouped;
   }
 
-  async getOrderStatisticAOV(values: Record<string, any>) {
+  async getOrderStatisticAOV(startDate?: Date, endDate?: Date) {
     const condition: any = { where: { status: { [Op.ne]: 'cancelled' } }, raw: false };
-    if (values.startDate && values.endDate)
-      condition.where['createdAt'] = { [Op.between]: [values.startDate, values.endDate] };
+    if (startDate && endDate) condition.where['createdAt'] = { [Op.between]: [startDate, endDate] };
     const orders = await this.orderRepo.getAll({
       ...condition,
       include: [
@@ -181,10 +171,9 @@ export default class OrderService implements OrderServiceInterface {
     });
     return grouped;
   }
-  async getOrderProductBestSellers(values: Record<string, any>) {
+  async getOrderProductBestSellers(startDate?: Date, endDate?: Date) {
     const condition: any = { where: { status: { [Op.ne]: 'cancelled' } }, raw: false };
-    if (values.startDate && values.endDate)
-      condition.where['createdAt'] = { [Op.between]: [values.startDate, values.endDate] };
+    if (startDate && endDate) condition.where['createdAt'] = { [Op.between]: [startDate, endDate] };
     const orders = await this.orderRepo.getAll({
       ...condition,
       include: [
@@ -223,9 +212,9 @@ export default class OrderService implements OrderServiceInterface {
     return grouped;
   }
 
-  async countOrderByStatus(values: Record<string, any>) {
+  async countOrderByStatus(statusFilter?: string[]) {
     const condition: any = { where: {} };
-    if (values.statuses && values.statuses.length > 0) condition.where.status = { [Op.in]: values.statuses };
+    if (statusFilter && statusFilter.length > 0) condition.where.status = { [Op.in]: statusFilter };
     // console.log(condition);
     const orderCount = await this.orderRepo.count({ ...condition, group: ['status'] });
     // @ts-ignore
@@ -233,11 +222,10 @@ export default class OrderService implements OrderServiceInterface {
     return result;
   }
 
-  async monthlySales(values: Record<string, any>) {
+  async monthlySales(startDate?: Date, endDate?: Date, excludeStatuses?: string[]) {
     const condition: any = { where: {} };
-    if (values.startDate && values.endDate)
-      condition.where.createdAt = { [Op.between]: [values.startDate, values.endDate] };
-    if (values.excludeStatuses) condition.where.status = { [Op.notIn]: values.excludeStatuses };
+    if (startDate && endDate) condition.where.createdAt = { [Op.between]: [startDate, endDate] };
+    if (excludeStatuses) condition.where.status = { [Op.notIn]: excludeStatuses };
     condition.attributes = [
       [sequelize.literal(`extract(month from "createdAt")`), 'month'],
       [sequelize.literal(`SUM(amount)`), 'sum'],

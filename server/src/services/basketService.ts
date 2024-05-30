@@ -4,14 +4,18 @@ import { BasketInterface, BasketProductInterface, ProductInterface } from '../da
 import BasketProductRepository, { BasketProductRepoInterface } from '../repositories/basketProductRepo';
 import ProductService, { ProductServiceInterface } from './productService';
 import BasketProductService, { BasketProductServiceInterface } from './basketProductService';
+import ApiError from '../errors/apiError';
 
 export interface BasketServiceInterface {
-  getBasket(options?: FindOptions): Promise<BasketInterface | null>;
-  deleteProductFromBasketByOptions(options: FindOptions): Promise<number>;
-  create(values: Record<string, any>): Promise<BasketInterface>;
-  getBasketProducts(values: Record<string, any>): Promise<any>;
-  addToBasket(records: Record<string, any>[], options?: BulkCreateOptions): Promise<BasketProductInterface[]>;
-  deleteFromBasket(values: Record<string, any>): Promise<number>;
+  getBasket(id?: number, userId?: number): Promise<BasketInterface | null>;
+  createBasket(userId?: number, temp?: boolean): Promise<BasketInterface>;
+  getBasketProducts(
+    basketId: number,
+    user_id?: number | null,
+    product_id?: number | null
+  ): Promise<{ counts: {}; products: ProductInterface[] }>;
+  addToBasket(basketId: number, productId: number, quantity: number): Promise<BasketProductInterface[]>;
+  deleteFromBasket(basketId: number, productId: number, quantity: number): Promise<number>;
   emptyBasket(id: number): Promise<number>;
 }
 
@@ -20,50 +24,46 @@ export default class BasketService implements BasketServiceInterface {
   private readonly basketProductRepo: BasketProductRepoInterface;
   private readonly basketProductService: BasketProductServiceInterface;
   private readonly productService: ProductServiceInterface;
-  name: string;
   constructor() {
     this.basketRepo = new BasketRepository();
     this.basketProductRepo = new BasketProductRepository();
     this.basketProductService = new BasketProductService();
     this.productService = new ProductService();
-    this.name = 'BasketService';
   }
 
-  async create(values: Record<string, any>) {
-    return await this.basketRepo.create(values);
+  public async createBasket(userId?: number, temp: boolean = true) {
+    if (!userId) return await this.basketRepo.create({ temp: true });
+    return await this.basketRepo.create({ userId, temp });
   }
 
-  async getBasketProducts(values: Record<string, any>) {
-    // console.log(`[${this.name} getBasketProducts] called!`);
-    if (values.user_id) {
-      const userBasket = await this.basketRepo.getOneByOptions({ where: { userId: values.user_id } });
+  public async getBasketProducts(basketId: number, user_id?: number, product_id?: number) {
+    if (!basketId) throw ApiError.notFound('Basket Id not foud!');
+    // update user basket from temp to own basket. It usually happens after login
+    if (user_id) {
+      const userBasket = await this.basketRepo.getOneByOptions({ where: { userId: Number(user_id) } });
       if (userBasket) {
-        if (values.basketCookieId && userBasket.id != values.basketCookieId) {
-          await this.basketProductRepo.updateByOptions(
-            { basketId: userBasket.id },
-            { where: { basketId: values.basketCookieId } }
-          );
+        if (userBasket.id != basketId) {
+          await this.basketProductRepo.updateByOptions({ basketId: userBasket.id }, { where: { basketId: basketId } });
           // delete temp basket
-          await this.basketRepo.deleteByOptions({ where: { id: values.basketCookieId } });
+          await this.basketRepo.deleteByOptions({ where: { id: basketId } });
         }
-        values.basketCookieId = userBasket.id;
+        basketId = userBasket.id;
       }
     }
-    if (values.product_id && values.basketCookieId) {
-      const basketProduct = await this.basketProductRepo.create({
-        basketId: values.user_id,
-        productId: values.product_id,
+    // create new basketProduct if product_id
+    if (product_id) {
+      await this.basketProductRepo.create({
+        basketId: user_id,
+        productId: product_id,
       });
-      // console.log('basketProduct: ', JSON.stringify(basketProduct, null, 2));
     }
-
+    // get all basketProducts by basketId
     const basketAllProduct = await this.basketProductRepo.getAll({
       attributes: ['productId'],
-      where: { basketId: values.basketCookieId },
+      where: { basketId },
     });
-    // console.log('basketAllProduct: ', JSON.stringify(basketAllProduct, null, 2));
-
-    const result = { counts: {}, products: [] },
+    // count products in user basket
+    const result: { counts: {}; products: ProductInterface[] } = { counts: {}, products: [] },
       productIdList: number[] = [];
     if (basketAllProduct.length === 0) return result;
 
@@ -72,36 +72,32 @@ export default class BasketService implements BasketServiceInterface {
       result.counts[el.productId] = result.counts[el.productId] ? result.counts[el.productId] + 1 : 1;
     });
     result.products = await this.productService.getAllProduct({ where: { id: { [Op.in]: productIdList } } });
-    // console.log('products: ', JSON.stringify(result.products, null, 2));
-
     return result;
   }
-  async getBasket(options: FindOptions) {
-    return await this.basketRepo.getOneByOptions(options);
+
+  public async getBasket(id?: number, userId?: number) {
+    if (!id && !userId) throw ApiError.invalid('basket id or userId is missing');
+    return await this.basketRepo.getOneByOptions({ where: id ? { id } : { userId } });
   }
 
-  async deleteProductFromBasketByOptions(options: FindOptions) {
-    return await this.basketProductRepo.deleteByOptions(options);
+  public async emptyBasket(basketId: number) {
+    if (!basketId) throw ApiError.invalid('basketId is required');
+    return await this.basketProductRepo.deleteByOptions({ where: { basketId } });
   }
 
-  async emptyBasket(id: number) {
-    return await this.basketProductRepo.deleteByOptions({ where: { basketId: id } });
-  }
-
-  async deleteFromBasket(values: Record<string, any>) {
-    const basketProducts = await this.basketProductService.getAll({
-      where: { basketId: values.basketId, productId: values.product_id },
-    });
-    // console.log('basketProducts: ', JSON.stringify(basketProducts, null, 2));
-    let condition: any = { productId: values.product_id, basketId: Number(values.basketId) };
-    if (basketProducts.length > Number(values.quantity)) {
-      condition = { id: { [Op.in]: basketProducts.splice(0, values.quantity).map((el) => el.id) } };
-      // console.log('condition: ', condition);
+  public async deleteFromBasket(basketId: number, productId: number, quantity: number) {
+    if (!basketId || !productId || !quantity)
+      throw ApiError.invalid('basketId, product_id and quantity must be provided');
+    const basketProducts = await this.basketProductService.getAll({ where: { basketId, productId } });
+    let condition: any = { productId, basketId };
+    if (basketProducts.length > quantity) {
+      condition = { id: { [Op.in]: basketProducts.splice(0, quantity).map((el) => el.id) } };
     }
     return await this.basketProductRepo.deleteByOptions({ where: condition });
   }
 
-  async addToBasket(records: Record<string, any>[], options: BulkCreateOptions = {}) {
-    return await this.basketProductService.bulkCreate(records, options);
+  public async addToBasket(basketId: number, productId: number, quantity: number) {
+    if (!basketId || !productId || !quantity) throw ApiError.invalid(`Missing required params`);
+    return await this.basketProductService.bulkCreate(Array(quantity).fill({ productId, basketId }));
   }
 }

@@ -1,4 +1,4 @@
-import { FindOptions, Optional } from 'sequelize';
+import { FindOptions } from 'sequelize';
 import TypeRepository, { TypeRepoInterface } from '../repositories/typeRepo';
 import { TypeInterface } from '../database/models/models';
 import BrandService from './brandService';
@@ -23,9 +23,11 @@ export default class TypeService implements TypeServiceInterface {
     return await this.typeRepo.getAll(options);
   }
   async getOneType(id: number) {
+    if (!id) throw ApiError.invalid('Type Id is required');
     return await this.typeRepo.getById(id);
   }
   async createType(name: string, brands: number[]) {
+    if (!name) throw ApiError.invalid('Type name is required');
     try {
       const type = await this.typeRepo.create({ name });
       if (type && brands && brands.length > 0) {
@@ -42,18 +44,19 @@ export default class TypeService implements TypeServiceInterface {
     }
   }
   async updateType(id: number, values: Record<string, any>) {
-    // console.log('[SERVICE updateType] called!');
+    if (!id) throw ApiError.invalid('Type Id is required');
+    if (!values || Object.keys(values).length === 0) throw ApiError.invalid('values are required');
     let type = await this.typeRepo.getById(id);
-    if (type) {
-      type = await this.typeRepo.update(type, { name: values.name });
-      if (values.brands) {
-        const _brands = await new BrandService().getAllBrands({ where: { id: values.brands } });
-        //@ts-ignore
-        await type.setBrands(_brands);
-        //@ts-ignore
-        type.setDataValue('brands', _brands);
-      }
+    if (!type) throw ApiError.notFound('Type not found');
+    type = await this.typeRepo.update(type, { name: values.name });
+    if (values.brands) {
+      const _brands = await new BrandService().getAllBrands({ where: { id: values.brands } });
+      //@ts-ignore
+      await type.setBrands(_brands);
+      //@ts-ignore
+      type.setDataValue('brands', _brands);
     }
+
     return type;
   }
   async deleteType(id: number) {

@@ -36,15 +36,9 @@ router.route('/db_sync').get(
     ])
       .then(async () => {
         Promise.all([
-          new UserService()
-            .create({
-              email: process.env.ADMIN_USER_EMAIL!,
-              role: 'ADMIN',
-              password: process.env.ADMIN_USER_PASS!,
-            })
-            .then(() => {
-              log.push('>>> NEW - User(ADMIN) created!');
-            }),
+          new UserService().create(process.env.ADMIN_USER_EMAIL!, process.env.ADMIN_USER_PASS!, 'ADMIN').then(() => {
+            log.push('>>> NEW - User(ADMIN) created!');
+          }),
           new SettingsService().createSettings(defaultSettings).then(() => {
             log.push('>>> NEW - SETTINGS created!');
           }),

@@ -1,6 +1,7 @@
 import { FindOptions, Op } from 'sequelize';
 import { SettingsInterface } from '../database/models/models';
 import SettingsRepository, { SettingsRepositoryInterface } from '../repositories/settingsRepo';
+import ApiError from '../errors/apiError';
 
 export interface SettingsServiceInterface {
   getAll(options?: FindOptions): Promise<SettingsInterface[]>;
@@ -20,7 +21,7 @@ export default class SettingsService implements SettingsServiceInterface {
     this._name = 'SettingsService';
   }
 
-  async getAll(options: FindOptions = {}) {
+  async getAll(options?: FindOptions) {
     return await this.settingsRepository.getAll(options);
   }
 
@@ -70,7 +71,8 @@ export default class SettingsService implements SettingsServiceInterface {
     });
   }
 
-  async updateSettings(settings: any) {
+  async updateSettings(settings: Record<string, any>[]) {
+    if (!settings || settings.length === 0) throw ApiError.invalid('Settings data required');
     const updated = Object.fromEntries(settings.map(({ name }) => [name, false]));
     for (const s of settings) {
       if (!s.value || s.value === 'null') s.value = null;
@@ -85,7 +87,7 @@ export default class SettingsService implements SettingsServiceInterface {
   }
 
   async createSettings(values: { name: string; value: string }[]) {
-    if (!values) return;
+    if (!values || Object.keys(values).length === 0) return;
     values.forEach(async (v) => {
       await this.settingsRepository.findOrCreate({
         where: { name: v.name },

@@ -3,18 +3,19 @@ import { NextFunction, Request, Response } from 'express';
 import OrderService, { OrderServiceInterface } from '../services/orderService';
 
 export default class OrderController {
-  name: string;
   private readonly orderService: OrderServiceInterface;
   constructor() {
-    this.name = 'OrderController';
     this.orderService = new OrderService();
   }
 
   async getAllOrder(req: Request, res: Response, next: NextFunction) {
-    const { status, paid } = req.query;
+    const status = req.query.status || undefined;
+    const paid = req.query.paid || undefined;
+    const options: any = { where: {} };
+    if (paid !== undefined) options.where.paid = paid;
+    if (status) options.where.status = status;
     try {
-      const orders = await this.orderService.getAllOrder({ status, paid });
-      res.status(200).json(orders);
+      res.status(200).json(await this.orderService.getAllOrder(options));
     } catch (error: any) {
       if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
       return next(ApiError.invalid(error.message || error));
@@ -26,8 +27,7 @@ export default class OrderController {
     const user = req.user;
     if (!user) return next(ApiError.notFound('User not recognised!'));
     try {
-      const orders = await this.orderService.getUserOrders(user);
-      res.status(200).json(orders);
+      res.status(200).json(await this.orderService.getUserOrders(Number(user.id)));
     } catch (error: any) {
       if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
       return next(ApiError.invalid(error.message || error));
@@ -35,7 +35,6 @@ export default class OrderController {
   }
 
   async updateOrder(req: Request, res: Response, next: NextFunction) {
-    // console.log(`[${this.name} updateOrder] called!'`);
     const { values } = req.body;
     const { id } = req.params;
     if (!values) return next(ApiError.notFound('Cant get values!'));
@@ -58,7 +57,7 @@ export default class OrderController {
     const user = req.user;
     if (!user) return next(ApiError.notFound('User not recognised!'));
     try {
-      const order = await this.orderService.cancelOrderByUser(id, user);
+      const order = await this.orderService.cancelOrderByUser(Number(id), Number(user.id));
       if (!order) return next(ApiError.notFound('Cant find order by given options!'));
       return res.status(200).json(order);
     } catch (error: any) {
@@ -97,7 +96,7 @@ export default class OrderController {
     // console.log(`[${this.name} getOrderStatistic] called!`);
     let { startDate, endDate } = req.body;
     try {
-      const result = await this.orderService.getOrderStatisticByStatus({ startDate, endDate });
+      const result = await this.orderService.getOrderStatisticByStatus(startDate, endDate);
       if (!result) return next(ApiError.invalid("Can't get statistic, see logs!"));
       return res.status(200).json(result);
     } catch (error: any) {
@@ -109,7 +108,7 @@ export default class OrderController {
   async getOrderStatisticAOV(req: Request, res: Response, next: NextFunction) {
     let { startDate, endDate } = req.body;
     try {
-      const result = await this.orderService.getOrderStatisticAOV({ startDate, endDate });
+      const result = await this.orderService.getOrderStatisticAOV(startDate, endDate);
       if (!result) return next(ApiError.invalid("Can't get statistic, see logs!"));
       return res.status(200).json(result);
     } catch (error: any) {
@@ -121,7 +120,7 @@ export default class OrderController {
   async getOrderProductBestSellers(req: Request, res: Response, next: NextFunction) {
     let { startDate, endDate } = req.body;
     try {
-      const result = await this.orderService.getOrderProductBestSellers({ startDate, endDate });
+      const result = await this.orderService.getOrderProductBestSellers(startDate, endDate);
       if (!result) return next(ApiError.invalid("Can't get statistic, see logs!"));
       return res.status(200).json(result);
     } catch (error: any) {
@@ -133,7 +132,7 @@ export default class OrderController {
   async countOrderByStatus(req: Request, res: Response, next: NextFunction) {
     const { statuses } = req.body;
     try {
-      const result = await this.orderService.countOrderByStatus({ statuses });
+      const result = await this.orderService.countOrderByStatus(statuses);
       if (!result) return next(ApiError.invalid("Can't get statistic, see logs!"));
       return res.status(200).json(result);
     } catch (error: any) {
@@ -145,7 +144,7 @@ export default class OrderController {
   async monthlySales(req: Request, res: Response, next: NextFunction) {
     let { startDate, endDate, excludeStatuses } = req.body;
     try {
-      const result = await this.orderService.monthlySales({ startDate, endDate, excludeStatuses });
+      const result = await this.orderService.monthlySales(startDate, endDate, excludeStatuses);
       if (!result) return next(ApiError.invalid("Can't get statistic, see logs!"));
       return res.status(200).json(result);
     } catch (error: any) {

@@ -15,13 +15,12 @@ const createJWToken = async (params: any) => {
 export interface UserServiceInterface {
   getAll(): Promise<UserInterface[]>;
   getById(id: number): Promise<UserInterface | null>;
-  registration(values: { email: string; password: string }): Promise<any>;
-  findByOptions(options: FindOptions): Promise<UserInterface | null>;
+  registration(email: string, password: string): Promise<any>;
   update(id: number, values: Record<string, any>): Promise<UserInterface>;
   delete(id: number): Promise<number>;
-  create(values: { email: string; password: string; role: string }): Promise<any>;
+  create(email: string, password: string, role?: string): Promise<any>;
   login(email: string, password: string): Promise<any>;
-  getMontlyUserRegs(confing: Record<string, any>): Promise<GroupedCountResultItem[]>;
+  getMontlyUserRegs(startDate?: Date, endDate?: Date): Promise<GroupedCountResultItem[]>;
 }
 
 export default class UserService implements UserServiceInterface {
@@ -38,61 +37,59 @@ export default class UserService implements UserServiceInterface {
     });
   }
   async getById(id: number) {
+    if (!id) throw ApiError.invalid('UresId required');
     return await this.userRepository.getById(id);
   }
 
-  async registration(values: { email: string; password: string }) {
-    const candidat = await this.userRepository.findByOptions({ where: { email: values.email } });
-    if (candidat) return ApiError.notFound('This email is already used!');
-    const hashPassword = await bcrypt.hash(String(values.password), 4);
-    const newUser = await this.userRepository.create({ email: values.email, role: 'USER', password: hashPassword });
+  async registration(email: string, password: string) {
+    if (!email || !password) throw ApiError.invalid('email, passwors are required');
+    if (await this.userRepository.findByOptions({ where: { email } }))
+      return ApiError.notFound('This email is already used!');
+    const newUser = await this.userRepository.create({
+      email,
+      role: 'USER',
+      password: await bcrypt.hash(String(password), 4),
+    });
     if (!newUser) return ApiError.internal(`Sorry! Can't create new user!`);
-    await this.basketService.create({ userId: newUser.id });
-    const token = await createJWToken({
+    await this.basketService.createBasket(newUser.id);
+    return await createJWToken({
       id: newUser.id,
-      email: values.email,
+      email,
       role: newUser.role,
     });
-    return token;
   }
 
-  async create(values: { email: string; password: string; role: string }) {
-    if (!values.email || !values.password) {
-      throw ApiError.invalid('Email or password empty!');
-    }
-    if (!values.role) values.role = 'USER';
-    const candidat = await this.userRepository.findByOptions({ where: { email: values.email } });
+  async create(email: string, password: string, role?: string) {
+    if (!email || !password) throw ApiError.invalid('Email or password is empty!');
+    const candidat = await this.userRepository.findByOptions({ where: { email } });
     if (candidat) {
       throw ApiError.internal('This email is already used!');
     }
-    const hashPassword = await bcrypt.hash(String(values.password), 4);
     const newUser = await this.userRepository.create({
-      email: values.email,
-      role: values.role,
-      password: hashPassword,
+      email,
+      role: role || 'USER',
+      password: await bcrypt.hash(String(password), 4),
     });
     if (!newUser) throw ApiError.internal(`Sorry! Can't create new user!`);
-    await this.basketService.create({ userId: newUser.id });
+    await this.basketService.createBasket(newUser.id);
     return newUser;
   }
 
-  async getMontlyUserRegs(confing: Record<string, any>) {
+  async getMontlyUserRegs(startDate?: Date, endDate?: Date) {
     const condition: any = { where: {} };
-    if (confing.startDate && confing.endDate)
-      condition.where.createdAt = { [Op.between]: [confing.startDate, confing.endDate] };
+    if (startDate && endDate) condition.where.createdAt = { [Op.between]: [startDate, endDate] };
     condition.attributes = [[sequelize.literal(`extract(month from "createdAt")`), 'month']];
     const result = await this.userRepository.count({ ...condition, group: ['month'] });
     return result;
   }
-  async findByOptions(values: Record<string, any>) {
-    return await this.userRepository.findByOptions({ where: { ...values } });
-  }
-  //   async update() {}
+
   async delete(id: number) {
-    if (!id) throw ApiError.invalid('Data is missing!');
+    if (!id) throw ApiError.invalid('Id is required');
     return await this.userRepository.delete(id);
   }
   async update(id: number, values: Record<string, any>) {
+    if (!id) throw ApiError.invalid('Id is required');
+    if (!values || Object.keys(values).length === 0) throw ApiError.invalid('values is required');
     if (values.password === '') {
       delete values.password;
     } else {
@@ -105,12 +102,12 @@ export default class UserService implements UserServiceInterface {
     return await this.userRepository.update(id, values);
   }
   async login(email: string, password: string) {
-    if (!email || !password) throw ApiError.invalid('Email or password not found!');
+    if (!email || !password) throw ApiError.invalid('Email and password are required!');
     const candidat = await this.userRepository.findByOptions({ where: { email } });
     if (!candidat) throw ApiError.invalid('Email or password incorrect!');
 
     if (!bcrypt.compareSync(String(password), candidat.password))
-      throw ApiError.internal('Email or password incorrect!');
+      throw ApiError.internal('Email or password is incorrect!');
     return await createJWToken({
       id: candidat.id,
       email,

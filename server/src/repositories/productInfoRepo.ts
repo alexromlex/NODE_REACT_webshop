@@ -1,4 +1,4 @@
-import { BulkCreateOptions, CreateOptions, FindOptions } from 'sequelize';
+import { BulkCreateOptions, FindOptions } from 'sequelize';
 import { ProductInfo, ProductInfoInterface } from '../database/models/models';
 import BaseRepository from './baseRepo';
 

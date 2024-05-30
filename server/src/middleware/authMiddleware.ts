@@ -1,12 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { NextFunction, Request, Response } from 'express';
 export default function (req: Request, res: Response, next: NextFunction) {
-  // only with POST, GET, PUT, DELETE except OPTIONS
-  // console.log('[authMiddleware] called!');
-  // console.log('req: ', req);
-  if (req.method === 'OPTIONS') {
-    next();
-  }
+  if (req.method === 'OPTIONS') next();
   try {
     const token = req.header('Authorization')?.split(`${process.env.TOKEN_PREFIX} `)[1];
     if (!token) return res.status(401).json({ message: 'Unauthorized' });

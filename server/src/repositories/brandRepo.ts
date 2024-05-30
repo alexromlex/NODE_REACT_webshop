@@ -1,6 +1,6 @@
 import BaseRepository from './baseRepo';
 import { Brand, BrandInterface, Type } from '../database/models/models';
-import { CreateOptions, FindOptions, InferCreationAttributes, Optional } from 'sequelize';
+import { CreateOptions, FindOptions } from 'sequelize';
 
 export interface BrandRepoInterface {
   getAll(options?: FindOptions): Promise<BrandInterface[]>;
