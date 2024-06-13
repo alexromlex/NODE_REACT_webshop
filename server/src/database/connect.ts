@@ -29,16 +29,4 @@ const sequelize = new Sequelize(dbConfig.database!, dbConfig.username!, dbConfig
   dialect: 'postgres',
 });
 
-// sequelize.addHook('beforeCreate', checkForTransaction);
-// sequelize.addHook('beforeUpdate', checkForTransaction);
-// sequelize.addHook('beforeDestroy', checkForTransaction);
-
-// function checkForTransaction(data, options) {
-//   if (!options.transaction && !options.noTransaction) {
-//     console.log('----------------- Im NOT Transaction -------------------');
-//     return;
-//   }
-//   console.log('>>>>>>>>>>>>>>>>>>>> I am a Transaction <<<<<<<<<<<<<<<<<<<<');
-// }
-
 export default sequelize;
