@@ -12,21 +12,23 @@ export interface TypeServiceInterface {
   deleteType(id: number): Promise<TypeInterface | number>;
 }
 
-export default class TypeService implements TypeServiceInterface {
-  private readonly typeRepo: TypeRepoInterface;
+class TypeService implements TypeServiceInterface {
+  //@ts-ignore
+  private readonly typeRepo: TypeRepository;
 
-  constructor() {
-    this.typeRepo = new TypeRepository();
+  //@ts-ignore
+  constructor(typeRepo: TypeRepository) {
+    this.typeRepo = typeRepo;
   }
 
-  async getAllTypes(options?: FindOptions) {
+  public async getAllTypes(options?: FindOptions) {
     return await this.typeRepo.getAll(options);
   }
-  async getOneType(id: number) {
+  public async getOneType(id: number) {
     if (!id) throw ApiError.invalid('Type Id is required');
     return await this.typeRepo.getById(id);
   }
-  async createType(name: string, brands: number[]) {
+  public async createType(name: string, brands: number[]) {
     if (!name) throw ApiError.invalid('Type name is required');
     try {
       const type = await this.typeRepo.create({ name });
@@ -43,7 +45,7 @@ export default class TypeService implements TypeServiceInterface {
       throw ApiError.internal(error);
     }
   }
-  async updateType(id: number, values: Record<string, any>) {
+  public async updateType(id: number, values: Record<string, any>) {
     if (!id) throw ApiError.invalid('Type Id is required');
     if (!values || Object.keys(values).length === 0) throw ApiError.invalid('values are required');
     let type = await this.typeRepo.getById(id);
@@ -59,7 +61,8 @@ export default class TypeService implements TypeServiceInterface {
 
     return type;
   }
-  async deleteType(id: number) {
+  public async deleteType(id: number) {
     return await this.typeRepo.delete(id);
   }
 }
+export default new TypeService(TypeRepository);

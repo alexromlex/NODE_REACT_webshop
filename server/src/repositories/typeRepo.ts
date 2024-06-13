@@ -9,7 +9,7 @@ export interface TypeRepoInterface {
   update(instance: any, values: Record<string, any>): Promise<TypeInterface>;
   delete(id: number): Promise<TypeInterface | number>;
 }
-export default class TypeRepository extends BaseRepository<TypeInterface> implements TypeRepoInterface {
+class TypeRepository extends BaseRepository<TypeInterface> implements TypeRepoInterface {
   constructor() {
     super(Type);
   }
@@ -36,3 +36,4 @@ export default class TypeRepository extends BaseRepository<TypeInterface> implem
     return await super.delete(id);
   }
 }
+export default new TypeRepository();

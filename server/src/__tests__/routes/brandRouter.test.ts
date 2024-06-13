@@ -6,7 +6,7 @@ import jwt from 'jsonwebtoken';
 import { typesFixt } from '../__fixtures__/types';
 import { userAdminFixt } from '../__fixtures__/users';
 
-jest.mock('../../repositories/brandRepo');
+// jest.mock('../../repositories/brandRepo');
 
 process.env.SECRET_KEY = 'kjdfh8ghdkjfngdfijbodsdlfdoighn';
 process.env.TOKEN_PREFIX = 'ROMLEX';
@@ -19,14 +19,16 @@ const update = jest.fn();
 const deleteFn = jest.fn();
 
 //@ts-ignore
-BrandRepository.mockImplementation(() => {
-  return {
-    getAll,
-    getById,
-    create,
-    update,
-    delete: deleteFn,
-  };
+jest.mock('../../repositories/brandRepo', () => {
+  return jest.fn().mockImplementation(() => {
+    return {
+      getAll,
+      getById,
+      create,
+      update,
+      delete: deleteFn,
+    };
+  });
 });
 
 beforeEach(() => {

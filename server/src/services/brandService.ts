@@ -24,7 +24,7 @@ export default class BrandService implements BrandServiceInterface {
     if (!name) throw ApiError.invalid('name is reqired');
     const brand = await this.brandRepo.create({ name });
     if (brand && types && types.length > 0) {
-      const _types = await new TypeService().getAllTypes({ where: { id: types } });
+      const _types = await TypeService.getAllTypes({ where: { id: types } });
       //@ts-ignore
       await brand.addTypes(_types);
       //@ts-ignore
@@ -38,7 +38,7 @@ export default class BrandService implements BrandServiceInterface {
     if (!brand) throw ApiError.notFound('Brand not found');
     brand = await this.brandRepo.update(brand, { name: values.name });
     if (values.brands) {
-      const _types = await new TypeService().getAllTypes({ where: { id: values.brands } });
+      const _types = await TypeService.getAllTypes({ where: { id: values.brands } });
       //@ts-ignore
       await brand.setTypes(_types);
       //@ts-ignore

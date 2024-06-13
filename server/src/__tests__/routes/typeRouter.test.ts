@@ -5,47 +5,22 @@ import { typeFixt, typeNewFixt, typeUpdatedFixt, typesFixt } from '../__fixtures
 import jwt from 'jsonwebtoken';
 import { brandsFixt } from '../__fixtures__/brands';
 import { userAdminFixt } from '../__fixtures__/users';
+import { TypeInterface } from '../../database/models/models';
 
-jest.mock('../../repositories/typeRepo');
+// import TypeRepository, { create, deleteFn, getAll, getById, update } from '../__mocks__/typeRepo';
 
 process.env.SECRET_KEY = 'kjdfh8ghdkjfngdfijbodsdlfdoighn';
 process.env.TOKEN_PREFIX = 'ROMLEX';
 const adminToken = jwt.sign(userAdminFixt, process.env.SECRET_KEY!, { expiresIn: '1h' });
 
-const getAll = jest.fn();
-const getById = jest.fn();
-const create = jest.fn();
-const update = jest.fn();
-const deleteFn = jest.fn();
-//@ts-ignore
-TypeRepository.mockImplementation(() => {
-  return {
-    getAll,
-    getById,
-    create,
-    update,
-    delete: deleteFn,
-  };
-});
-
-beforeEach(() => {
-  // @ts-ignore
-  TypeRepository.mockClear();
-  getAll.mockClear();
-  getById.mockClear();
-  create.mockClear();
-  update.mockClear();
-  deleteFn.mockClear();
-});
-
 describe('API / TYPES POSITIVE', () => {
-  getAll.mockImplementation(async () => typesFixt);
-  getById.mockImplementation(async () => typeFixt);
-  create.mockImplementation(async () => typeNewFixt);
-  update.mockImplementation(async () => typeUpdatedFixt);
-  deleteFn.mockImplementation(async () => null);
+  jest.spyOn(TypeRepository, 'getAll').mockImplementation(async () => typesFixt);
+  jest.spyOn(TypeRepository, 'create').mockImplementation(async (): Promise<any> => typeNewFixt);
+  jest.spyOn(TypeRepository, 'update').mockImplementation(async () => typeUpdatedFixt);
+  jest.spyOn(TypeRepository, 'delete').mockImplementation(async () => 1);
 
   test('GET - /type returns list of types', async () => {
+    // getAll.mockImplementation(async () => typesFixt);
     await supertest(createServer())
       .get('/api/type')
       .expect(200)
@@ -54,6 +29,7 @@ describe('API / TYPES POSITIVE', () => {
       });
   });
   test('GET - /type/1 returns type by id', async () => {
+    jest.spyOn(TypeRepository, 'getById').mockImplementation(async (): Promise<any> => typeFixt);
     await supertest(createServer())
       .get('/api/type/1')
       .expect(200)
@@ -73,7 +49,7 @@ describe('API / TYPES POSITIVE', () => {
       });
   });
   test('PATCH - /type/99 returns updated type', async () => {
-    getById.mockImplementation(async () => typeFixt);
+    // getById.mockImplementation(async () => typeFixt);
     await supertest(createServer())
       .patch('/api/type/99')
       .set('Authorization', process.env.TOKEN_PREFIX + ' ' + adminToken)
@@ -93,7 +69,7 @@ describe('API / TYPES POSITIVE', () => {
 
 describe('API / TYPES NEGATIVE', () => {
   test('GET - /type/222 NO FOUND', async () => {
-    getById.mockImplementation(async () => null);
+    jest.spyOn(TypeRepository, 'getById').mockImplementation(async () => null);
     await supertest(createServer()).get('/api/type/222').expect(404);
   });
   test('POST - /type  returns ERROR Unauthorized', async () => {
