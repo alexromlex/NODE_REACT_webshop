@@ -103,7 +103,11 @@ If you have created types and brands, let's crate a products!
 
 - Jest
 - Supertest
-- TypeScrypt
+
+## Monitoring
+
+- Prometheus (prom-client)
+- Grafana
 
 ## 🔧 Running the tests <a name = "tests"></a>
 
