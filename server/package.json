@@ -6,7 +6,7 @@
     "build": "tsc --build",
     "clean": "rm -rf dist",
     "test": "jest --detectOpenHandles",
-    "test:only": "jest --detectOpenHandles jest -i orderRouter.test.ts",
+    "test:only": "jest --detectOpenHandles jest -i typeRouter.test.ts",
     "dev": "nodemon ./src/index.ts"
   },
   "keywords": [],
@@ -24,6 +24,7 @@
     "morgan": "^1.10.0",
     "pg": "^8.11.3",
     "pg-hstore": "^2.3.4",
+    "prom-client": "^15.1.2",
     "sequelize": "^6.37.1",
     "sharp": "^0.33.4",
     "uuid": "^9.0.1"

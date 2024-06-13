@@ -1,0 +1,44 @@
+# global:
+#   scrape_interval: 5s
+#   evaluation_interval: 30s
+#   body_size_limit: 15MB
+
+# scrape_configs:
+#   - job_name: backend
+#     static_configs:
+#       - targets: ['localhost:5026']
+
+global:
+  scrape_interval: 5s
+  scrape_timeout: 5s
+  scrape_protocols:
+    - OpenMetricsText1.0.0
+    - OpenMetricsText0.0.1
+    - PrometheusText0.0.4
+  evaluation_interval: 30s
+  body_size_limit: 15MiB
+scrape_configs:
+  - job_name: prometheus
+    scrape_interval: 10s
+    static_configs:
+      - targets:
+          - localhost:9090
+  - job_name: backend
+    honor_timestamps: true
+    track_timestamps_staleness: false
+    scrape_interval: 5s
+    scrape_timeout: 5s
+    scrape_protocols:
+      - OpenMetricsText1.0.0
+      - OpenMetricsText0.0.1
+      - PrometheusText0.0.4
+    metrics_path: '/metrics'
+    scheme: http
+    enable_compression: true
+    body_size_limit: 15MiB
+    follow_redirects: true
+    enable_http2: true
+    static_configs:
+      - targets:
+          - 'host.docker.internal:5026' # on windows localhost 'host.docker.internal'
+

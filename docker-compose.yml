@@ -5,6 +5,32 @@ networks:
     driver: bridge
 
 services:
+  ####################################  METRICS START
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    restart: unless-stopped
+    environment:
+      - GF_LOG_LEVEL=debug
+    ports:
+      - 3000:3000
+    volumes:
+      - ./grafana/grafana:/var/lib/grafana
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+    networks:
+      - network2022
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    volumes:
+      - ./prometheus:/etc/prometheus
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - 9090:9090
+    networks:
+      - network2022
+  ####################################  METRICS END
   database:
     image: postgres:16
     container_name: webshop_db
