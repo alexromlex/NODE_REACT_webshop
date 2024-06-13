@@ -96,8 +96,10 @@ export const newOrderFixt = {
   updatedAt: new Date(),
 };
 
-export const orderStatisticByStatusFixt = { '4': { new: 2 } };
-export const orderStatisticAOVFixt = { '4': { orderQty: 2, sales: 700000, av: 350000 } };
+const prev_month = String(new Date().getMonth());
+
+export const orderStatisticByStatusFixt = { [prev_month]: { new: 2 } };
+export const orderStatisticAOVFixt = { [prev_month]: { orderQty: 2, sales: 700000, av: 350000 } };
 
 export const orderStatisticBestSellersFixt = {
   products: { 'WHIRLPOOL AKR 749/1 NB': 4 },
