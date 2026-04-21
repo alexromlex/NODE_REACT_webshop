@@ -23,7 +23,7 @@ import {
 } from '../__fixtures__/orders';
 import { userAdminFixt, userFixt } from '../__fixtures__/users';
 import sequelize from '../../database/connect';
-import { createServer } from '../../server';
+import { createApp } from '../../server';
 
 process.env.SECRET_KEY = 'kjdfh8ghdkjfngdfijbodsdlfdoighn';
 process.env.TOKEN_PREFIX = 'ROMLEX';
@@ -81,7 +81,7 @@ describe('API / ORDERS POSITIVE', () => {
   mockOrderRepo.getByOptions.mockResolvedValue(orderFixt);
 
   test('GET - /order => list of orders', async () => {
-    await supertest(createServer())
+    await supertest(createApp())
       .get('/api/order')
       .set('Authorization', process.env.TOKEN_PREFIX + ' ' + adminToken)
       .expect(200)
@@ -91,7 +91,7 @@ describe('API / ORDERS POSITIVE', () => {
   });
 
   test('GET - /order/user => user orders', async () => {
-    await supertest(createServer())
+    await supertest(createApp())
       .get('/api/order/user')
       .set('Authorization', process.env.TOKEN_PREFIX + ' ' + userToken)
       .expect(200)
@@ -101,7 +101,7 @@ describe('API / ORDERS POSITIVE', () => {
   });
 
   test('PATCH - /order/update/2  => updated order', async () => {
-    await supertest(createServer())
+    await supertest(createApp())
       .patch('/api/order/update/2')
       .set('Authorization', process.env.TOKEN_PREFIX + ' ' + adminToken)
       .send({ values: { status: 'cancelled' } })
@@ -112,7 +112,7 @@ describe('API / ORDERS POSITIVE', () => {
   });
 
   test('POST - /order/cancel => cancelled order by user', async () => {
-    await supertest(createServer())
+    await supertest(createApp())
       .post('/api/order/cancel')
       .set('Authorization', process.env.TOKEN_PREFIX + ' ' + userToken)
       .send({ id: 1 })
@@ -127,7 +127,7 @@ describe('API / ORDERS POSITIVE', () => {
     getBasket.mockResolvedValue(newOrderGetBasketFixt);
     getAllProduct.mockResolvedValue(NewOrderGetAllProductsFixt);
     mockOrderRepo.create.mockResolvedValue(newOrderFixt);
-    await supertest(createServer())
+    await supertest(createApp())
       .post('/api/order/new')
       .set('Authorization', process.env.TOKEN_PREFIX + ' ' + userToken)
       .set('Idempotency-Key', idempotencyKey)
@@ -143,7 +143,7 @@ describe('API / ORDERS POSITIVE', () => {
 
   test('POST - /statistic/by_status => orders by status', async () => {
     const startDate = new Date();
-    await supertest(createServer())
+    await supertest(createApp())
       .post('/api/order/statistic/by_status')
       .set('Authorization', process.env.TOKEN_PREFIX + ' ' + adminToken)
       .send({
@@ -158,7 +158,7 @@ describe('API / ORDERS POSITIVE', () => {
 
   test('POST - /statistic/aov => AOV for last 6 month', async () => {
     const startDate = new Date();
-    await supertest(createServer())
+    await supertest(createApp())
       .post('/api/order/statistic/aov')
       .set('Authorization', process.env.TOKEN_PREFIX + ' ' + adminToken)
       .send({
@@ -173,7 +173,7 @@ describe('API / ORDERS POSITIVE', () => {
 
   test('POST - /statistic/best_sellers => best sellers last 30 days', async () => {
     const startDate = new Date();
-    await supertest(createServer())
+    await supertest(createApp())
       .post('/api/order/statistic/best_sellers')
       .set('Authorization', process.env.TOKEN_PREFIX + ' ' + adminToken)
       .send({
@@ -188,7 +188,7 @@ describe('API / ORDERS POSITIVE', () => {
 
   test('POST - /statistic/count_status => number of orders with statuses["new", "released"]', async () => {
     mockOrderRepo.count.mockResolvedValue(orderCountByStatusFixt);
-    await supertest(createServer())
+    await supertest(createApp())
       .post('/api/order/statistic/count_status')
       .set('Authorization', process.env.TOKEN_PREFIX + ' ' + adminToken)
       .send({ statuses: ['new', 'released'] })
@@ -201,7 +201,7 @@ describe('API / ORDERS POSITIVE', () => {
   test('POST - /statistic/monthly_sales => monthly sales data', async () => {
     mockOrderRepo.getAll.mockResolvedValue(orderStatisticMonthlySalesFixt);
     const startDate = new Date();
-    await supertest(createServer())
+    await supertest(createApp())
       .post('/api/order/statistic/monthly_sales')
       .set('Authorization', process.env.TOKEN_PREFIX + ' ' + adminToken)
       .send({
@@ -217,7 +217,7 @@ describe('API / ORDERS POSITIVE', () => {
 
 describe('API / ORDERS NEGATIVE', () => {
   test('GET - /order  Unauthorized => 401', async () => {
-    await supertest(createServer())
+    await supertest(createApp())
       .get('/api/order')
       .expect(401)
       .then((result) => {
@@ -226,7 +226,7 @@ describe('API / ORDERS NEGATIVE', () => {
   });
   
   test('PATCH - /order/update/2  No permission => 403', async () => {
-    await supertest(createServer())
+    await supertest(createApp())
       .patch('/api/order/update/2')
       .set('Authorization', process.env.TOKEN_PREFIX + ' ' + userToken)
       .send({ values: { status: 'cancelled' } })
@@ -237,7 +237,7 @@ describe('API / ORDERS NEGATIVE', () => {
   });
 
   test('POST - /order/new  NO Idempotency Key => 400', async () => {
-    await supertest(createServer())
+    await supertest(createApp())
       .post('/api/order/new')
       .set('Authorization', process.env.TOKEN_PREFIX + ' ' + userToken)
       // .set('Idempotency-Key', idempotencyKey)
@@ -249,7 +249,7 @@ describe('API / ORDERS NEGATIVE', () => {
     getBasket.mockResolvedValue(newOrderGetBasketFixt);
     getAllProduct.mockResolvedValue(NewOrderGetAllProductsFixt);
     mockOrderRepo.create.mockResolvedValue({...newOrderFixt, id: 2});
-    await supertest(createServer())
+    await supertest(createApp())
       .post('/api/order/new')
       .set('Authorization', process.env.TOKEN_PREFIX + ' ' + userToken)
       .set('Idempotency-Key', idempotencyKey)

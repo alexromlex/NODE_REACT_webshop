@@ -7,13 +7,10 @@
  */
 // 'use strict';
 import supertest from 'supertest';
-import { createServer } from '../../server';
-import ProductRepository from '../../repositories/productRepo';
+import { createApp } from '../../server';
 import jwt from 'jsonwebtoken';
 import { userAdminFixt } from '../__fixtures__/users';
 import { productFixt, productImagePath, productUpdatedFixt, savedImageOutput } from '../__fixtures__/product';
-import RatingRepository from '../../repositories/ratingRepo';
-import ProductInfoRepository from '../../repositories/productInfoRepo';
 import { productInfoFixt } from '../__fixtures__/productInfo';
 import { ratingFixt } from '../__fixtures__/rating';
 import { saveImage, deleteImage } from '../../utils';
@@ -22,6 +19,7 @@ import sequelize from '../../database/connect';
 process.env.SECRET_KEY = 'kjdfh8ghdkjfngdfijbodsdlfdoighn';
 process.env.TOKEN_PREFIX = 'ROMLEX';
 const adminToken = jwt.sign(userAdminFixt, process.env.SECRET_KEY!, { expiresIn: '1h' });
+const app = createApp();
 
 const product_getAll = jest.fn();
 const product_findAndCountAll = jest.fn();
@@ -31,44 +29,40 @@ const product_getById = jest.fn();
 const product_deleteByOptions = jest.fn();
 const product_update = jest.fn();
 
-jest.mock('../../repositories/productRepo', () => {
-  return jest.fn().mockImplementation(() => {
-    return {
+jest.mock('../../repositories/productRepo', () => ({
+  __esModule: true,
+  default: jest.fn().mockImplementation(() => ({
       getAll: product_getAll,
       getById: product_getById,
       findAndCountAll: product_findAndCountAll,
       create: product_create,
       getProductFullData: product_getProductFullData,
       deleteByOptions: product_deleteByOptions,
-      update: product_update,
-    };
-  });
-});
+      update: product_update
+  }))
+}));
 
 const rating_create = jest.fn(),
   rating_deleteByOptions = jest.fn();
-jest.mock('../../repositories/ratingRepo', () => {
-  return jest.fn().mockImplementation(() => {
-    return { create: rating_create, deleteByOptions: rating_deleteByOptions };
-  });
-});
+jest.mock('../../repositories/ratingRepo', () => ({
+  __esModule: true,
+  default: jest.fn().mockImplementation(() => ({
+     create: rating_create, 
+     deleteByOptions: rating_deleteByOptions
+  }))
+}))
 
 const productInfo_bulkCreate = jest.fn();
-jest.mock('../../repositories/productInfoRepo', () => {
-  return jest.fn().mockImplementation(() => {
-    return { bulkCreate: productInfo_bulkCreate };
-  });
-});
+jest.mock('../../repositories/productInfoRepo', () => ({
+  __esModule: true,
+  default: jest.fn().mockImplementation(() => ({
+     bulkCreate: productInfo_bulkCreate
+  }))
+}));
 
 jest.mock('../../utils');
 
 beforeEach(() => {
-  // @ts-ignore
-  ProductRepository.mockClear();
-  // @ts-ignore
-  RatingRepository.mockClear();
-  // @ts-ignore
-  ProductInfoRepository.mockClear();
   product_getProductFullData.mockClear();
   product_getAll.mockClear();
   product_findAndCountAll.mockClear();
@@ -83,7 +77,7 @@ beforeEach(() => {
 describe('API / PRODUCT POSITIVE', () => {
   test('GET - /product => list of products', async () => {
     product_findAndCountAll.mockImplementation(async () => ({ rows: [productFixt, productFixt], count: 2 }));
-    await supertest(createServer())
+    await supertest(app)
       .get('/api/product')
       .query({ page: '1', limit: '6', sort: ['updatedAt', 'DESC'] })
       .expect(200)
@@ -99,8 +93,8 @@ describe('API / PRODUCT POSITIVE', () => {
     product_getProductFullData.mockImplementation(async () => productFixt);
     jest.mocked(saveImage).mockImplementation(async () => Promise.resolve(savedImageOutput));
     // @ts-ignore
-    const spyTransaction = jest.spyOn(sequelize, 'transaction').mockImplementation((callback) => callback());
-    await supertest(createServer())
+    const spyTransaction = jest.spyOn(sequelize, 'transaction').mockImplementation((callback: any) => callback());
+    await supertest(app)
       .post('/api/product')
       .set('Authorization', process.env.TOKEN_PREFIX + ' ' + adminToken)
       .attach('img', productImagePath)
@@ -119,7 +113,7 @@ describe('API / PRODUCT POSITIVE', () => {
   });
   test('GET - /product/1 => product by id 1', async () => {
     product_getProductFullData.mockImplementation(async () => productFixt);
-    await supertest(createServer())
+    await supertest(app)
       .get('/api/product/1')
       .expect(200)
       .then((result) => {
@@ -129,7 +123,7 @@ describe('API / PRODUCT POSITIVE', () => {
   test('DELETE - /product/1 => deleted product Id:1', async () => {
     product_getById.mockImplementation(async () => productFixt);
     product_deleteByOptions.mockImplementation(async () => 1);
-    await supertest(createServer())
+    await supertest(app)
       .delete('/api/product/1')
       .set('Authorization', process.env.TOKEN_PREFIX + ' ' + adminToken)
       .expect(200)
@@ -146,9 +140,8 @@ describe('API / PRODUCT POSITIVE', () => {
     jest.mocked(deleteImage).mockImplementation(() => true);
     rating_create.mockImplementation(async () => ratingFixt);
     rating_deleteByOptions.mockImplementation(async () => 1);
-    // @ts-ignore
-    const spyTransaction = jest.spyOn(sequelize, 'transaction').mockImplementation((callback) => callback());
-    await supertest(createServer())
+    const spyTransaction = jest.spyOn(sequelize, 'transaction').mockImplementation((callback:any) => callback());
+    await supertest(app)
       .patch('/api/product/1')
       .set('Authorization', process.env.TOKEN_PREFIX + ' ' + adminToken)
       .attach('img', productImagePath)

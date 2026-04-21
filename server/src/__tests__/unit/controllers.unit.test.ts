@@ -5,13 +5,13 @@
  */
 
 import supertest from 'supertest';
-import { createServer } from '../../server';
+import { createApp } from '../../server';
 
 
 describe('SERVER API', () => {
   
   test('GET / => 200', async () => {
-    await supertest(createServer())
+    await supertest(createApp())
       .get('/')
       .expect(200)
       .then((res) => {
@@ -20,7 +20,7 @@ describe('SERVER API', () => {
   });
 
   test('GET /healthcheck => 200', async () => {
-    await supertest(createServer())
+    await supertest(createApp())
       .get('/healthcheck')
       .expect(200)
       .then((res) => {
@@ -29,7 +29,7 @@ describe('SERVER API', () => {
   });
 
   test('GET /some-endpoint => 404', async () => {
-    await supertest(createServer())
+    await supertest(createApp())
       .get('/some-endpoint')
       .expect(404)
       .then((res) => {
@@ -38,13 +38,13 @@ describe('SERVER API', () => {
   });
 
   test('GET /package.json => 403', async () => {
-    await supertest(createServer())
+    await supertest(createApp())
       .get('/package.json')
       .expect(404);
   });
 
   test('GET /testImage.jpg => 200', async () => {
-    await supertest(createServer())
+    await supertest(createApp())
       .get('/testImage.jpg')
       .expect(200)
       .then((res) => {
@@ -88,7 +88,7 @@ const userAPIData = [
 describe('USER CONTROLLER', () => {
   const prefix = '/api/user';
   test.each(userAPIData)(`$method ${prefix}$endpoint $name => $expectedStatus`, async ({ method, endpoint, expectedStatus}) => {
-    await supertest(createServer())
+    await supertest(createApp())
       [method](prefix + endpoint)
       .expect(expectedStatus);
   });
@@ -119,7 +119,7 @@ const adminSettingsAPIData = [
 ]
 describe('SETTINGS CONTROLLER', () => {
   const prefix = '/api/settings';
-  const server = createServer();
+  const server = createApp();
   settings_findByOptions.mockResolvedValue({'value': 'Test'});
   settings_getAll.mockResolvedValue([{'value': 'Test'}])
   test.each(adminSettingsAPIData)(`$method ${prefix}$endpoint $name => $expectedStatus`, async ({ method, endpoint, expectedStatus}) => {

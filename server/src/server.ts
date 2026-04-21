@@ -14,7 +14,7 @@ import path from 'path';
 const swaggerDocument = require('../swagger_output.json');
 
 const app = express();
-export const createServer = () => {
+export const createApp = () => {
   app
     .use(morgan('dev'))
     .use(urlencoded({ extended: true }))

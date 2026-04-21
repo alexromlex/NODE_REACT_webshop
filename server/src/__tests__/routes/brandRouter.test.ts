@@ -2,11 +2,10 @@
  * @group release_3
  * @group regression
  * @group api
- * @group product_brand
+ * @group brand
  */
 import supertest from 'supertest';
-import { createServer } from '../../server';
-import BrandRepository from '../../repositories/brandRepo';
+import { createApp } from '../../server';
 import { brandFixt, brandNewFixt, brandUpdatedFixt, brandsFixt } from '../__fixtures__/brands';
 import jwt from 'jsonwebtoken';
 import { typesFixt } from '../__fixtures__/types';
@@ -15,28 +14,27 @@ import { userAdminFixt } from '../__fixtures__/users';
 process.env.SECRET_KEY = 'kjdfh8ghdkjfngdfijbodsdlfdoighn';
 process.env.TOKEN_PREFIX = 'ROMLEX';
 const adminToken = jwt.sign(userAdminFixt, process.env.SECRET_KEY!, { expiresIn: '1h' });
+const app = createApp();
 
-jest.mock('../../repositories/brandRepo');
-const getAll = jest.fn();
-const getById = jest.fn();
-const create = jest.fn();
-const update = jest.fn();
-const deleteFn = jest.fn();
+const getAll = jest.fn(),
+  getById = jest.fn(),
+  create = jest.fn(),
+  update = jest.fn(),
+  deleteFn = jest.fn();
 
-//@ts-ignore
-BrandRepository.mockImplementation(() => {
-  return {
+jest.mock('../../repositories/brandRepo', () => ({
+  __esModule: true,
+  default: jest.fn().mockImplementation(() => ({
     getAll,
     getById,
     create,
     update,
-    delete: deleteFn,
-  };
-});
+    delete: deleteFn
+  }))
+}));
 
 beforeEach(() => {
-  // @ts-ignore
-  BrandRepository.mockClear();
+
   getAll.mockClear();
   getById.mockClear();
   create.mockClear();
@@ -52,7 +50,7 @@ describe('API / BRANDS POSITIVE', () => {
   deleteFn.mockImplementation(async () => null);
 
   test('GET - /brand returns list of brands', async () => {
-    await supertest(createServer())
+    await supertest(app)
       .get('/api/brand')
       .expect(200)
       .then((result) => {
@@ -60,7 +58,7 @@ describe('API / BRANDS POSITIVE', () => {
       });
   });
   test('POST - /brand  returns created brand id:99', async () => {
-    await supertest(createServer())
+    await supertest(app)
       .post('/api/brand/')
       .set('Authorization', process.env.TOKEN_PREFIX + ' ' + adminToken)
       .send({ name: 'new brand' })
@@ -72,7 +70,7 @@ describe('API / BRANDS POSITIVE', () => {
   });
   test('PATCH - /brand/99 returns updated brand', async () => {
     getById.mockImplementation(async () => brandFixt);
-    await supertest(createServer())
+    await supertest(app)
       .patch('/api/brand/99')
       .set('Authorization', process.env.TOKEN_PREFIX + ' ' + adminToken)
       .send({ name: 'updated new brand' })
@@ -82,7 +80,7 @@ describe('API / BRANDS POSITIVE', () => {
       });
   });
   test('DELETE - /brand/99 returns 200 when delete brand', async () => {
-    await supertest(createServer())
+    await supertest(app)
       .delete('/api/brand/99')
       .set('Authorization', process.env.TOKEN_PREFIX + ' ' + adminToken)
       .expect(200);
@@ -92,10 +90,10 @@ describe('API / BRANDS POSITIVE', () => {
 describe('API / BRANDS NEGATIVE', () => {
   test('GET - /brand/333 NO FOUND', async () => {
     getById.mockImplementation(async () => null);
-    await supertest(createServer()).get('/api/brand/333').expect(404);
+    await supertest(app).get('/api/brand/333').expect(404);
   });
   test('POST - /brand  returns ERROR Unauthorized', async () => {
-    await supertest(createServer())
+    await supertest(app)
       .post('/api/brand/')
       .send({ name: 'new brand' })
       .expect(401)
