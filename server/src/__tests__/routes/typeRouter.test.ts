@@ -1,36 +1,42 @@
+/**
+ * @group release_2
+ * @group regression
+ * @group api
+ * @group type
+ */
 import supertest from 'supertest';
-import { createServer } from '../../server';
-import TypeRepository from '../../repositories/typeRepo';
+import { createApp } from '../../server';
 import { typeFixt, typeNewFixt, typeUpdatedFixt, typesFixt } from '../__fixtures__/types';
 import jwt from 'jsonwebtoken';
 import { brandsFixt } from '../__fixtures__/brands';
 import { userAdminFixt } from '../__fixtures__/users';
 
-jest.mock('../../repositories/typeRepo');
+
 
 process.env.SECRET_KEY = 'kjdfh8ghdkjfngdfijbodsdlfdoighn';
 process.env.TOKEN_PREFIX = 'ROMLEX';
 const adminToken = jwt.sign(userAdminFixt, process.env.SECRET_KEY!, { expiresIn: '1h' });
 
-const getAll = jest.fn();
-const getById = jest.fn();
-const create = jest.fn();
-const update = jest.fn();
-const deleteFn = jest.fn();
-//@ts-ignore
-TypeRepository.mockImplementation(() => {
-  return {
+const getAll = jest.fn(),
+  getById = jest.fn(),
+  create = jest.fn(),
+  update = jest.fn(),
+  deleteFn = jest.fn();
+
+jest.mock('../../repositories/typeRepo', () => ({
+  __esModule: true,
+  default: jest.fn().mockImplementation(() => ({
     getAll,
     getById,
     create,
     update,
-    delete: deleteFn,
-  };
-});
+    delete: deleteFn
+  }))
+}));
+
+const app = createApp();
 
 beforeEach(() => {
-  // @ts-ignore
-  TypeRepository.mockClear();
   getAll.mockClear();
   getById.mockClear();
   create.mockClear();
@@ -46,7 +52,7 @@ describe('API / TYPES POSITIVE', () => {
   deleteFn.mockImplementation(async () => null);
 
   test('GET - /type returns list of types', async () => {
-    await supertest(createServer())
+    await supertest(app)
       .get('/api/type')
       .expect(200)
       .then((result) => {
@@ -54,7 +60,7 @@ describe('API / TYPES POSITIVE', () => {
       });
   });
   test('GET - /type/1 returns type by id', async () => {
-    await supertest(createServer())
+    await supertest(app)
       .get('/api/type/1')
       .expect(200)
       .then((res) => {
@@ -62,7 +68,7 @@ describe('API / TYPES POSITIVE', () => {
       });
   });
   test('POST - /type  returns created type id:99', async () => {
-    await supertest(createServer())
+    await supertest(app)
       .post('/api/type/')
       .set('Authorization', process.env.TOKEN_PREFIX + ' ' + adminToken)
       .send({ name: 'new type' })
@@ -74,7 +80,7 @@ describe('API / TYPES POSITIVE', () => {
   });
   test('PATCH - /type/99 returns updated type', async () => {
     getById.mockImplementation(async () => typeFixt);
-    await supertest(createServer())
+    await supertest(app)
       .patch('/api/type/99')
       .set('Authorization', process.env.TOKEN_PREFIX + ' ' + adminToken)
       .send({ name: 'updated new type' })
@@ -84,7 +90,7 @@ describe('API / TYPES POSITIVE', () => {
       });
   });
   test('DELETE - /type/99 returns 200 when delete type', async () => {
-    await supertest(createServer())
+    await supertest(app)
       .delete('/api/type/99')
       .set('Authorization', process.env.TOKEN_PREFIX + ' ' + adminToken)
       .expect(200);
@@ -94,10 +100,10 @@ describe('API / TYPES POSITIVE', () => {
 describe('API / TYPES NEGATIVE', () => {
   test('GET - /type/222 NO FOUND', async () => {
     getById.mockImplementation(async () => null);
-    await supertest(createServer()).get('/api/type/222').expect(404);
+    await supertest(app).get('/api/type/222').expect(404);
   });
   test('POST - /type  returns ERROR Unauthorized', async () => {
-    await supertest(createServer())
+    await supertest(app)
       .post('/api/type/')
       .send({ name: 'new type' })
       .expect(401)

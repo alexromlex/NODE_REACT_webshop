@@ -1,12 +1,13 @@
 import { Container, Nav, Navbar, NavDropdown, Offcanvas } from 'react-bootstrap';
 import { NavLink, useNavigate } from 'react-router-dom';
-import userStore from '../stores/userStore';
 import { observer } from 'mobx-react-lite';
-import basketStore from '../stores/basketStore';
 import SearchBarDropDown from './SearchBar';
-import mainStore from '../stores/mainStore';
+import { useStore } from '../stores/StoreProvider';
 
 const NavBar = () => {
+  const userStore = useStore('userStore');
+  const mainStore = useStore('mainStore');
+  const basketStore = useStore('basketStore');
   const navigate = useNavigate();
   const logoutHandler = () => {
     userStore.logoutUser();

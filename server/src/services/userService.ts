@@ -16,8 +16,8 @@ export interface UserServiceInterface {
   getAll(): Promise<UserInterface[]>;
   getById(id: number): Promise<UserInterface | null>;
   registration(email: string, password: string): Promise<any>;
-  update(id: number, values: Record<string, any>): Promise<UserInterface>;
-  delete(id: number): Promise<number>;
+  update(id: number, values: Record<string, any>): Promise<any>;
+  delete(id: number): Promise<any>;
   create(email: string, password: string, role?: string): Promise<any>;
   login(email: string, password: string): Promise<any>;
   getMontlyUserRegs(startDate?: Date, endDate?: Date): Promise<GroupedCountResultItem[]>;
@@ -38,19 +38,19 @@ export default class UserService implements UserServiceInterface {
   }
   async getById(id: number) {
     if (!id) throw ApiError.invalid('UresId required');
-    return await this.userRepository.getById(id);
+    return await this.userRepository.getById(id, {attributes: ['id', 'role', 'email', 'createdAt']});
   }
 
   async registration(email: string, password: string) {
     if (!email || !password) throw ApiError.invalid('email, passwors are required');
-    if (await this.userRepository.findByOptions({ where: { email } }))
-      return ApiError.notFound('This email is already used!');
+    if(password.length < 3) throw ApiError.invalid('Password must be at least 3 characters long!');
+    if (await this.userRepository.findByOptions({ where: { email } })) throw ApiError.invalid('This email is already used!');
     const newUser = await this.userRepository.create({
       email,
       role: 'USER',
       password: await bcrypt.hash(String(password), 4),
     });
-    if (!newUser) return ApiError.internal(`Sorry! Can't create new user!`);
+    if (!newUser) throw ApiError.internal(`Sorry! Can't create new user!`);
     await this.basketService.createBasket(newUser.id);
     return await createJWToken({
       id: newUser.id,
@@ -61,6 +61,7 @@ export default class UserService implements UserServiceInterface {
 
   async create(email: string, password: string, role?: string) {
     if (!email || !password) throw ApiError.invalid('Email or password is empty!');
+    if(password.length < 3) throw ApiError.invalid('Password must be at least 3 characters long!');
     const candidat = await this.userRepository.findByOptions({ where: { email } });
     if (candidat) {
       throw ApiError.internal('This email is already used!');
@@ -72,7 +73,7 @@ export default class UserService implements UserServiceInterface {
     });
     if (!newUser) throw ApiError.internal(`Sorry! Can't create new user!`);
     await this.basketService.createBasket(newUser.id);
-    return newUser;
+    return {id: newUser.id, email: newUser.email, role: newUser.role, createdAt: newUser.createdAt, updatedAt: newUser.updatedAt};
   }
 
   async getMontlyUserRegs(startDate?: Date, endDate?: Date) {
@@ -93,21 +94,22 @@ export default class UserService implements UserServiceInterface {
     if (values.password === '') {
       delete values.password;
     } else {
+      if(values.password.length < 3) throw ApiError.invalid('Password must be at least 3 characters long!');
       values.password = await bcrypt.hash(String(values.password), 4);
     }
     if (values.email) {
       const candidat = await this.userRepository.findByOptions({ where: { email: values.email } });
       if (candidat && candidat.id != id) throw ApiError.invalid('This email is already used!');
     }
-    return await this.userRepository.update(id, values);
+    const result = await this.userRepository.update(id, values);
+    return {id: result.id, email: result.email, role: result.role, createdAt: result.createdAt, updatedAt: result.updatedAt};
   }
   async login(email: string, password: string) {
     if (!email || !password) throw ApiError.invalid('Email and password are required!');
     const candidat = await this.userRepository.findByOptions({ where: { email } });
-    if (!candidat) throw ApiError.invalid('Email or password incorrect!');
-
+    if (!candidat) throw ApiError.unauthorized('Email or password incorrect!');
     if (!bcrypt.compareSync(String(password), candidat.password))
-      throw ApiError.internal('Email or password is incorrect!');
+      throw ApiError.unauthorized('Email or password is incorrect!');
     return await createJWToken({
       id: candidat.id,
       email,

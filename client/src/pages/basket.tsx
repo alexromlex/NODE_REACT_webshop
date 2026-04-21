@@ -1,11 +1,11 @@
 import { Container, Row, Col, Button } from 'react-bootstrap';
-import basketStore from '../stores/basketStore';
 import { observer } from 'mobx-react-lite';
-
 import ProductBasket from '../components/ProductInsideBasket';
 import { useNavigate } from 'react-router-dom';
+import { useStore } from '../stores/StoreProvider';
 
 const BasketPage = () => {
+  const basketStore = useStore('basketStore');
   const navigator = useNavigate();
   return (
     <Container fluid={'xxl'} className="m-0 ps-3 pe-3 ps-xxl-0 pe-xxl-0" datatype="basket">

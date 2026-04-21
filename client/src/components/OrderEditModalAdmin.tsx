@@ -1,15 +1,16 @@
 import { Container, Row, Col, Table, Modal, Button, Form, Badge } from 'react-bootstrap';
 import { useState } from 'react';
-import adminStore from '../stores/adminStore';
-import orderStore from '../stores/orderStore';
 import { statusStyle } from '../common/utils';
 import { OrderInterface } from '../common/types';
+import { useStore } from '../stores/StoreProvider';
 
 interface OrderEditModalAdminProps extends OrderInterface {
   onSave(): void;
 }
 
 const OrderEditModalAdmin: React.FC<OrderEditModalAdminProps> = (order) => {
+  const adminStore = useStore('adminStore');
+  const orderStore = useStore('orderStore');
   const [status, setStatus] = useState(order.status);
   const [paid, setPaid] = useState(order.paid);
   const onSaveHandler = () => {

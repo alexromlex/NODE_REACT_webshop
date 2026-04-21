@@ -1,12 +1,13 @@
-import { Row, InputGroup, Form } from 'react-bootstrap';
-import adminStore from '../stores/adminStore';
+import { Row, InputGroup, Form} from 'react-bootstrap';
 import { useSearchParams } from 'react-router-dom';
 import { regexName } from '../common/utils';
 import { observer } from 'mobx-react-lite';
+import { useStore } from '../stores/StoreProvider';
 
 const TypeBrandSelector = () => {
+  const adminStore = useStore('adminStore');
   const [searchParams, setSearchParams] = useSearchParams();
-
+  
   const onSelectType = (id: number) => {
     if (id < 0) {
       searchParams.delete('type');

@@ -36,7 +36,7 @@ const EditDeleteTable: React.FC<EditDeleteTableProps> = (props) => {
                     {col.name === 'img' ? (
                       <Image
                         key={t[col.name]}
-                        src={serverUrl + '/static/' + t[col.name]}
+                        src={serverUrl + '/' + t[col.name]}
                         rounded
                         thumbnail
                         style={{ maxHeight: 100 }}
@@ -58,8 +58,8 @@ const EditDeleteTable: React.FC<EditDeleteTableProps> = (props) => {
                 ))}
                 <td className="align-middle">
                   <Stack direction="horizontal" gap={2}>
-                    <ButtonEdit onClickHandler={() => props.onEdit(t)} />
-                    <ButtonDelete onClickHandler={() => onDeleteHandler(t.id)} />
+                    {props.onEdit && <ButtonEdit onClickHandler={() => props.onEdit!(t)} />}
+                    {props.onDelete && <ButtonDelete onClickHandler={() => onDeleteHandler(t.id)} />}
                   </Stack>
                 </td>
               </tr>

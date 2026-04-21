@@ -1,0 +1,370 @@
+const userDocs = {
+  '/user/login': {
+    post: {
+      summary: 'Login for User/Admin',
+      tags: ['User'],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              required: ['email', 'password'],
+              properties: {
+                email: { type: 'string', minimum: 6, example: 'useremail@mail.hu' },
+                password: { type: 'string', minimum: 3, example: 'abc54321' },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        "200": {
+          description: 'Successful login',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  token: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
+        "400": { $ref: '#/components/responses/BadRequestError'},
+        "401": { $ref: '#/components/responses/UnauthorizedError'},
+        "5XX": { $ref: '#/components/responses/InternalServerError'},
+      },
+    },
+  },
+  '/user/registration': {
+    post: {
+      summary: 'Register a new User',
+      tags: ['User'],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              required: ['email', 'password'],
+              properties: {
+                email: { type: 'string' },
+                password: { type: 'string' },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        "200": {
+          description: 'Successful registration',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  token: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
+        "400": { $ref: '#/components/responses/BadRequestError'},
+        "5XX": { $ref: '#/components/responses/InternalServerError'},
+      },
+    },
+  },
+  '/user/auth': {
+    get: {
+      summary: 'Authenticate a User',
+      tags: ['User'],
+      security: [
+        {
+          customAuth: [],
+        },
+      ],
+      parameters: [
+        {
+          name: 'Authorization',
+          in: 'header',
+          required: true,
+          description: 'ROMLEX token',
+          schema: {
+            type: 'string',
+            example: 'ROMLEX eyJhbGciOiJIUzI1NiIs...',
+          },
+        },
+      ],
+      responses: {
+        "200": {
+          description: 'Successful authentication',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  token: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
+        "401": { $ref: '#/components/responses/UnauthorizedError'},
+        "5XX": { $ref: '#/components/responses/InternalServerError'},
+      },
+    },
+  },
+  '/user/': {
+    post: {
+      summary: 'Create a NEW User in Admin panel',
+      tags: ['User'],
+      security: [
+        {
+          customAuth: [],
+        },
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              required: ['email', 'password', 'role'],
+              properties: {
+                email: { type: 'string', example: 'useremail@mail.hu' },
+                password: { type: 'string', example: 'abc54321' },
+                role: { type: 'string', enum: ['USER', 'ADMIN'] },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        "200": {
+          description: 'Successful creation',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  user: {
+                    type: 'object',
+                    properties: {
+                        id: { type: 'number' },
+                        email: { type: 'string' },
+                        role: { type: 'string' },
+                        createdAt: { type: 'string', format: 'date-time' },
+                        updatedAt: { type: 'string', format: 'date-time' },
+                      },
+                  },
+                },
+              },
+            },
+          },
+        },
+        "401": { $ref: '#/components/responses/UnauthorizedError'},
+        "403": { $ref: '#/components/responses/ForbiddenError'},
+        "5XX": { $ref: '#/components/responses/InternalServerError'},
+      },
+    },
+  },
+  '/user/statistic/monthly_regs': {
+    post: {
+      summary: 'Get monthly user registration statistics in Admin panel',
+      tags: ['User'],
+      security: [
+        {
+          customAuth: [],
+        },
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              required: ['startDate', 'endDate'],
+              properties: {
+                startDate: { type: 'string', format: 'date' },
+                endDate: { type: 'string', format: 'date' },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        "200": {
+          description: 'Successful retrieval',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  user: { type: 'array' },
+                  items: {
+                    type: 'object',
+                    properties: {
+                      month: { type: 'string' },
+                      count: { type: 'number' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        "401": { $ref: '#/components/responses/UnauthorizedError'},
+        "403": { $ref: '#/components/responses/ForbiddenError'},
+        "5XX": { $ref: '#/components/responses/InternalServerError'},
+      },
+    },
+  },
+  '/user/all/': {
+    get: {
+      summary: 'Get all users',
+      tags: ['User'],
+      security: [
+        {
+          customAuth: [],
+        },
+      ],
+      responses: {
+        "200": {
+          description: 'Successful response',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    id: { type: 'number' },
+                    email: { type: 'string' },
+                    role: { type: 'string', enum: ['USER', 'ADMIN'] },
+                    createdAt: { type: 'string', format: 'date-time' },
+                  },
+                },
+              },
+            },
+          },
+        },
+        "401": { $ref: '#/components/responses/UnauthorizedError'},
+        "403": { $ref: '#/components/responses/ForbiddenError'},
+        "5XX": { $ref: '#/components/responses/InternalServerError'},
+      },
+    },
+  },
+  '/user/{id}': {
+    parameters: [{
+      name: 'id',
+      in: 'path',
+      required: true,
+      description: 'User ID',
+      type: 'integer',
+      example: 1
+    }],
+    get: {
+      summary: 'Get user by ID',
+      tags: ['User'],
+      security: [{
+        customAuth: [],
+      }],
+      responses: {
+        "200": {
+          description: 'Successful response',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  id: { type: 'number' },
+                  email: { type: 'string' },
+                  role: { type: 'string', enum: ['USER', 'ADMIN'] },
+                  createdAt: { type: 'string', format: 'date-time' },
+                },
+              },
+            },
+          },
+        },
+        "404": { $ref: '#/components/responses/NotFoundError'},
+        "401": { $ref: '#/components/responses/UnauthorizedError'},
+        "403": { $ref: '#/components/responses/ForbiddenError'},
+        "5XX": { $ref: '#/components/responses/InternalServerError'},
+      },
+    },
+    delete: {
+      summary: 'Delete user by ID',
+      tags: ['User'],
+      security: [{
+        customAuth: [],
+      }],
+      responses: {
+        "200": {
+          description: 'Successful response',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  id: { type: 'number', example: 2 },
+                },
+              },
+            },
+          },
+        },
+        "404": { $ref: '#/components/responses/NotFoundError'},
+        "401": { $ref: '#/components/responses/UnauthorizedError'},
+        "403": { $ref: '#/components/responses/ForbiddenError'},
+        "5XX": { $ref: '#/components/responses/InternalServerError'},
+      },
+    },
+    patch: {
+      summary: 'Update user by ID',
+      tags: ['User'],
+      security: [{
+        customAuth: [],
+      }],
+      requestBody: {
+        required: false,
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                email: { type: 'string', example: 'john.doe@example.com', allowEmptyValue: true},
+                password: { type: 'string', example: 'newpassword123', allowEmptyValue: true },
+                role: { type: 'string', enum: ['USER', 'ADMIN'] },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        "200": {
+          description: 'Successful response',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  id: { type: 'number' },
+                  email: { type: 'string' },
+                  role: { type: 'string', enum: ['USER', 'ADMIN'] },
+                  createdAt: { type: 'string', format: 'date-time' },
+                  updatedAt: { type: 'string', format: 'date-time' },
+                },
+              },
+            },
+          },
+        },
+        "404": { $ref: '#/components/responses/NotFoundError'},
+        "401": { $ref: '#/components/responses/UnauthorizedError'},
+        "403": { $ref: '#/components/responses/ForbiddenError'},
+        "5XX": { $ref: '#/components/responses/InternalServerError'},
+      },
+    },
+  },
+};
+module.exports = { userDocs };

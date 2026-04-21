@@ -3,10 +3,9 @@ import { Row, Button } from 'react-bootstrap';
 import ProductItem from './ProductItem';
 import { getProducts } from '../api/productsApi';
 import { promiseWrapper } from '../common/utils';
-import userStore from '../stores/userStore';
 import { useNavigate } from 'react-router-dom';
-import productStore from '../stores/productStore';
 import { ProductInterface } from '../common/types';
+import { useStore } from '../stores/StoreProvider';
 
 interface PropsInterface {
   type: number | null;
@@ -18,6 +17,8 @@ interface PropsInterface {
 }
 
 const ProductList: React.FC<PropsInterface> = ({ type, brand, page, limit, sort, v }) => {
+  const userStore = useStore('userStore');
+  const productStore = useStore('productStore');
   const [data, setData] = useState<any>(null);
   const navigator = useNavigate();
   useEffect(() => {

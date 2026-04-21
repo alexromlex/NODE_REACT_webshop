@@ -10,8 +10,8 @@ export async function getUserOrders() {
   return data;
 }
 
-export async function newOrder(orderData: OrderInterface) {
-  return await apiAuth.post('/order/new', orderData);
+export async function newOrder(orderData: OrderInterface, config: Record<string, any> = {}  ) {
+  return await apiAuth.post('/order/new', orderData, config);
 }
 
 export async function updateOrder(id: number, values: Record<string, any>) {

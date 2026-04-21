@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { ButtonGroup, Dropdown, DropdownButton } from 'react-bootstrap';
-import productStore from '../stores/productStore';
 import { useSearchParams } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
+import { useStore } from '../stores/StoreProvider';
 
 const SortProduct = () => {
+  const productStore = useStore('productStore');
   const [searchParams, setSearchParams] = useSearchParams();
   const [title, setTitle] = useState('Sort by ');
   const titles = {

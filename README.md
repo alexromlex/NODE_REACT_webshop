@@ -1,6 +1,6 @@
 <h3 align="center">WEBSHOP [ReactJS + Express(NodeJS) + Sequalize(PostgreSQL)]</h3>
 
-## 📝 Quick links
+## Quick links
 
 - [About](#about)
 - [Getting Started](#getting_started)
@@ -9,7 +9,7 @@
 - [Tests](#tests)
 - [Screenshots](https://github.com/alexromlex/NODE_REACT_webshop/tree/main/screenshots)
 
-## 🧐 About <a name = "about"></a>
+## About <a name = "about"></a>
 
 This project was published only for code demonstrating. It has limited e-commerce functionality of following features.
 
@@ -19,11 +19,11 @@ This project was published only for code demonstrating. It has limited e-commerc
 | - Product Items        | - Orders                    |
 | - Basket management    | - Users                     |
 | - Checkout process     | - Products                  |
-|                        | - Product types             |
+| - My Orders            | - Product types             |
 |                        | - Brands                    |
 |                        | - Settings                  |
 
-## 🏁 Getting Started <a name = "getting_started"></a>
+## Getting Started <a name = "getting_started"></a>
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
 
@@ -34,28 +34,23 @@ Firstly [download](https://github.com/alexromlex/NODE_REACT_webshop/archive/refs
 Install node_modules inside \server> and \client> directories:
 
 ```
-npm install
+cd server && npm install
+cd ..
+cd client && npm install
 ```
 
 Run [docker desktop](https://www.docker.com/products/docker-desktop/)
 
-Then, run all containers with command from project root dicrectory:
+Then, run all containers with enviroments by command from project root dicrectory:
 
 ```
-docker compose up -d
+docker compose --env-file .env up -d
 ```
+Database syncronization and User admin will create automaticaly.
+init-db.sh -> src/database/seed-db.ts will install npx and run script to seed data.
 
-I recommend create database by API, but before waiting for container <webshop_db> to start successfully, see docker desktop app!
-
-<webshop_db> container logs must be like:
-
-```
-LOG: database system is ready to accept connections
-```
-
-Also you'll see db files inside project root directory \db>
-
-Then, go to URL: http://localhost:5026/api/system/db_sync
+Alternative way:
+Go to URL: http://localhost:5026/api/system/db_sync
 
 ### result should be the next:
 
@@ -64,37 +59,39 @@ Then, go to URL: http://localhost:5026/api/system/db_sync
 - NEW - SETTINGS created!
 - NEW - User(ADMIN) created!
 
-## 🎈 Usage <a name="usage"></a>
+## Usage <a name="usage"></a>
 
 Firstly login as ADMIN by URL: http://localhost:5226/login
 
-ADMIN email & password you can find inside root directory .env file
+ADMIN email & password you can find inside .env file
 
-Then, go to admin panel http://localhost:5226/admin/brands where you can create a brands!
+Then, navigate to admin panel http://localhost:5226/admin/brands where you can create a brands!
 
 After this, create product types, that will contain the brands you have already created.
 
 If you have created types and brands, let's crate a products!
 
-## 🚀 Tech Stack <a name = "techstack"></a>
+## Tech Stack <a name = "techstack"></a>
 
 ## Backend
 
-- NodeJS v.18
+- NodeJS v.22
 - Express v.4
 - Loging - Morgan
-- Authentication (JWT + bcrypt)
+- Authentication (JWT Bearer)
+- OpenAPI Swagger
+- Test metadata generator(TestPlan)
 - TypeScrypt
 
 ## Database
 
-- Sequalize v.6 ORM
 - PostgreSQL v.16
+- Sequalize ORM
 - pgadmin v.4 (included)
 
 ## Frontend
 
-- ReactJS
+- REACTJS
 - HighCharts
 - TinyMCE
 - TypeScrypt
@@ -113,6 +110,6 @@ To start tests, run CMD in \server> directory :
  npm run test
 ```
 
-Tests written for API router with 100% coverage:
+Tests written only for API router with 100% coverage:
 
 ![Docker desktop](./screenshots/test_coverage.png)

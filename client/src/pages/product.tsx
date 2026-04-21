@@ -38,7 +38,7 @@ const ProductPage = () => {
           <Row className="g-0">
             <Col sm className="product_left_bar">
               <div className="d-flex justify-content-center">
-                <img className={'img-fluid'} src={serverUrl + '/static/' + product.img} alt={product.name} />
+                <img className={'img-fluid'} src={serverUrl + '/' +product.img} alt={product.name} />
               </div>
               <div className="mt-3">
                 <ProductInfo id={product.id!} name={'Specification'} data={product.info!} opened={true} />

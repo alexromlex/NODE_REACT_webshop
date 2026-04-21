@@ -20,6 +20,7 @@ export default class UserController {
       const users = await this.userService.getAll();
       return res.status(200).json(users);
     } catch (error: any) {
+      if (error instanceof ApiError) return next(error);
       return next(ApiError.invalid(error));
     }
   }
@@ -28,10 +29,11 @@ export default class UserController {
     const { id } = req.params;
     if (!id) return next(ApiError.notFound('User Id not provided!'));
     try {
-      const user = await this.userService.getById(Number(id));
+      const user = await this.userService.getById(Number(id), );
       if (!user) return next(ApiError.notFound(`User not found!`));
       return res.status(200).json(user);
     } catch (error: any) {
+      if (error instanceof ApiError) return next(error);
       if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
       return next(ApiError.invalid(error.message || error));
     }
@@ -44,6 +46,7 @@ export default class UserController {
       if (!result) return next(ApiError.internal(`Can't get statistics. See logs`));
       res.status(200).json(result);
     } catch (error: any) {
+      if (error instanceof ApiError) return next(error);
       if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
       return next(ApiError.invalid(error.message || error));
     }
@@ -52,12 +55,13 @@ export default class UserController {
   async registration(req: Request, res: Response, next: NextFunction) {
     const { email, password } = req.body;
     if (!email || !password) {
-      return next(ApiError.notFound('Email or password incorrect!'));
+      return next(ApiError.invalid('Email or password required!'));
     }
     try {
       const result = await this.userService.registration(email, password);
       return res.status(200).json({ token: result });
     } catch (error: any) {
+      if (error instanceof ApiError) return next(error);
       if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
       return next(ApiError.invalid(error.message || error));
     }
@@ -69,6 +73,7 @@ export default class UserController {
       const result = await this.userService.create(email, password, role);
       return res.status(200).json({ user: result });
     } catch (error: any) {
+      if (error instanceof ApiError) return next(error);
       if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
       return next(ApiError.invalid(error.message || error));
     }
@@ -77,12 +82,12 @@ export default class UserController {
   async update(req: Request, res: Response, next: NextFunction) {
     const { id } = req.params;
     const data = req.body;
-
     if (!id || !data) return next(ApiError.invalid('Data is missing!'));
     try {
       const user = await this.userService.update(Number(id), data);
       return res.status(200).json(user);
     } catch (error: any) {
+      if (error instanceof ApiError) return next(error);
       if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
       return next(ApiError.invalid(error.message || error));
     }
@@ -92,10 +97,10 @@ export default class UserController {
     const { id } = req.params;
     if (!id) return next(ApiError.invalid('Data is missing!'));
     try {
-      const result = await this.userService.delete(Number(id));
-      if (!result) return next(ApiError.internal(`Can't delete user! See logs`));
-      return res.status(200).json(result);
+      await this.userService.delete(Number(id));
+      return res.status(200).json({ id: Number(id) });
     } catch (error: any) {
+      if (error instanceof ApiError) return next(error);
       if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
       return next(ApiError.invalid(error.message || error));
     }
@@ -109,15 +114,16 @@ export default class UserController {
       if (!token) return next(ApiError.internal(`Can't create token! See logs`));
       return res.status(200).json({ token });
     } catch (error: any) {
-      if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
-      return next(ApiError.invalid(error.message || error));
+      if (error instanceof ApiError) return next(error);
+      if (error.errors) return next(ApiError.internal(error.errors.map((e: any) => e.message).join(', ')));
+      return next(ApiError.internal(error.message || error));
     }
   }
 
   async check(req: Request, res: Response, next: NextFunction) {
     //@ts-ignore
     const user = req.user || undefined;
-    if (!user) return next(ApiError.notFound(`Can't get user!`));
+    if (!user) return next(ApiError.unauthorized(`Can't get user!`));
     const token = jwt.sign(
       {
         id: user.id,

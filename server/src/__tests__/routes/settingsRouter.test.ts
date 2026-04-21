@@ -1,31 +1,38 @@
+/**
+ * @group release_4
+ * @group regression
+ * @group api
+ * @group settings
+ */
+
 import supertest from 'supertest';
 import { userAdminFixt, userFixt } from '../__fixtures__/users';
 import jwt from 'jsonwebtoken';
-import { createServer } from '../../server';
-import SettingsRepository from '../../repositories/settingsRepo';
+import { createApp } from '../../server';
 import { settingsAllFixt } from '../__fixtures__/settings';
 const settings_getAll = jest.fn(),
   settings_findByOptions = jest.fn(),
   settings_findOrCreate = jest.fn(),
   settings_update = jest.fn();
 
-jest.mock('../../repositories/settingsRepo', () => {
-  return jest.fn().mockImplementation(() => ({
+jest.mock('../../repositories/settingsRepo', () => ({
+  __esModule: true,
+  default: jest.fn().mockImplementation(() => ({
     getAll: settings_getAll,
     findByOptions: settings_findByOptions,
     findOrCreate: settings_findOrCreate,
     update: settings_update,
-  }));
-});
+  }))
+}));
 
 process.env.SECRET_KEY = 'kjdfh8ghdkjfngdfijbodsdlfdoighn';
 process.env.TOKEN_PREFIX = 'ROMLEX';
 const adminToken = jwt.sign(userAdminFixt, process.env.SECRET_KEY!, { expiresIn: '1h' });
 const userToken = jwt.sign(userFixt, process.env.SECRET_KEY!, { expiresIn: '1h' });
 
+const app = createApp();
+
 beforeEach(() => {
-  //@ts-ignore
-  SettingsRepository.mockClear();
   settings_getAll.mockClear();
   settings_findByOptions.mockClear();
   settings_findOrCreate.mockClear();
@@ -48,7 +55,7 @@ describe('API / SETTINGS POSITIVE', () => {
     ].includes(el.name)
   );
   test('GET - / => array with settings object', async () => {
-    await supertest(createServer())
+    await supertest(app)
       .get('/api/settings')
       .set('Authorization', process.env.TOKEN_PREFIX + ' ' + adminToken)
       .expect(200)
@@ -61,7 +68,7 @@ describe('API / SETTINGS POSITIVE', () => {
     settings_getAll.mockImplementation(() =>
       settingsAllFixt.filter((el) => ['header_name', 'header_img'].includes(el.name))
     );
-    await supertest(createServer())
+    await supertest(app)
       .get('/api/settings/main')
       .expect(200)
       .then((result) => {
@@ -72,7 +79,7 @@ describe('API / SETTINGS POSITIVE', () => {
   test('GET - / => string', async () => {
     const found = settingsAllFixt.filter((el) => el.name === 'general_terms')[0];
     settings_findByOptions.mockImplementation(() => found);
-    await supertest(createServer())
+    await supertest(app)
       .get('/api/settings/genterms')
       .expect(200)
       .then((result) => {
@@ -82,7 +89,7 @@ describe('API / SETTINGS POSITIVE', () => {
   test('GET - /privacy => string', async () => {
     const found = settingsAllFixt.filter((el) => el.name === 'privacy_policy')[0];
     settings_findByOptions.mockImplementation(() => found);
-    await supertest(createServer())
+    await supertest(app)
       .get('/api/settings/privacy')
       .expect(200)
       .then((result) => {
@@ -91,7 +98,7 @@ describe('API / SETTINGS POSITIVE', () => {
   });
   test('GET - /billing => object with admin access', async () => {
     settings_getAll.mockImplementation(() => founded_billing);
-    await supertest(createServer())
+    await supertest(app)
       .get('/api/settings/billing')
       .set('Authorization', process.env.TOKEN_PREFIX + ' ' + adminToken)
       .expect(200)
@@ -103,7 +110,7 @@ describe('API / SETTINGS POSITIVE', () => {
   });
   test('GET - /billing => object with user access', async () => {
     settings_getAll.mockImplementation(() => founded_billing);
-    await supertest(createServer())
+    await supertest(app)
       .get('/api/settings/billing')
       .set('Authorization', process.env.TOKEN_PREFIX + ' ' + userToken)
       .expect(200)
@@ -119,7 +126,7 @@ describe('API / SETTINGS POSITIVE', () => {
       .mockImplementation(() => found)
       .mockResolvedValueOnce({ update: jest.fn(), save: jest.fn() });
     settings_update.mockImplementation(() => settingsAllFixt);
-    await supertest(createServer())
+    await supertest(app)
       .patch('/api/settings')
       .set('Authorization', process.env.TOKEN_PREFIX + ' ' + adminToken)
       .send({
@@ -144,7 +151,7 @@ describe('API / SETTINGS POSITIVE', () => {
 
 describe('API / SETTINGS NEGATIVE', () => {
   test('GET - /billing => 401 error Unauthorized', async () => {
-    await supertest(createServer())
+    await supertest(app)
       .get('/api/settings/billing')
       .expect(401)
       .then((result) => {

@@ -185,6 +185,6 @@ export interface ChartProps {
 export interface EditDeleteTableProps {
   rows: any[];
   cols: { name: string; alias?: string; formatter?: any }[]; // name = 'order.invoice.id' will return id by getPropByString()
-  onEdit(obj: object): void;
-  onDelete(id: number): void;
+  onEdit?(obj: object): void;
+  onDelete?(id: number): void;
 }

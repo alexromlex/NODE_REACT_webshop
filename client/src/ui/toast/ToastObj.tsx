@@ -1,7 +1,7 @@
 import Toast from 'react-bootstrap/Toast';
 import { useState } from 'react';
-import userStore from '../../stores/userStore';
 import { ToastObjInterface } from '../../common/types';
+import { useStore } from '../../stores/StoreProvider';
 
 // https://react-bootstrap.netlify.app/docs/components/toasts
 const Icon = (svg_color: string): JSX.Element => (
@@ -33,6 +33,7 @@ interface Props {
 }
 
 const ToastObj: React.FC<Props> = ({ toast }) => {
+  const userStore = useStore('userStore');
   const [show, setShow] = useState(true);
   const [autohide, setAutohide] = useState(toast.delay > 0);
 

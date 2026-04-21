@@ -4,7 +4,6 @@ import BrandBar from '../components/BrandBar';
 import ProductList from '../components/ProductList';
 import { Suspense, useEffect } from 'react';
 import { getType, getTypes } from '../api/typesApi';
-import productStore from '../stores/productStore';
 import { getBrands } from '../api/brandsApi';
 import { observer } from 'mobx-react-lite';
 import { useSearchParams } from 'react-router-dom';
@@ -12,9 +11,11 @@ import { regexName } from '../common/utils';
 import { ProductListSkeleton } from '../ui/skeletons';
 import PagesComponent from '../components/Paginator';
 import SortProduct from '../components/sortProduct';
+import { useStore } from '../stores/StoreProvider';
 
 const ShopPage = () => {
   // console.log('[ShopPage] called!');
+  const productStore = useStore('productStore');
   const [searchParams, setSearchParams] = useSearchParams();
   const searchType = String(searchParams.get('type')) || null;
   const searchBrand = String(searchParams.get('brand')) || null;

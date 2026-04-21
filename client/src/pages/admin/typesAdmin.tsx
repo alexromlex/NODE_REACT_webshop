@@ -3,14 +3,15 @@ import EditDeleteTable from '../../components/EditDeleteTable';
 import { InputGroup, Form } from 'react-bootstrap';
 import { useEffect, useState } from 'react';
 import ModalWindow from '../../ui/modal';
-import adminStore from '../../stores/adminStore';
 import { TypeInterface } from '../../common/types';
 import { observer } from 'mobx-react-lite';
 import { getTypes, getType } from '../../api/typesApi';
 import { getBrands } from '../../api/brandsApi';
 import ModalTypeBodyAdmin from '../../components/TypeModalBodyAdmin';
+import { useStore } from '../../stores/StoreProvider';
 
 const TypesAdmin = () => {
+  const adminStore = useStore('adminStore');
   const [modalShow, setModalShow] = useState(false);
   const [editItem, setEditItem] = useState<TypeInterface | null>(null);
   const [modalTitle, setModalTitle] = useState('TYPES - new');

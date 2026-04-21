@@ -1,9 +1,4 @@
 export default {
-  // globals: {
-  //   'ts-jest': {
-  //     diagnostics: false,
-  //   },
-  // },
   preset: 'ts-jest',
   testEnvironment: 'jest-environment-jsdom',
   transform: {

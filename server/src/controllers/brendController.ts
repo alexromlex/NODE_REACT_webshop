@@ -13,6 +13,7 @@ export default class BrandController {
       const brands = await this.brandService.getAllBrands();
       res.status(200).json(brands);
     } catch (error: any) {
+      if (error instanceof ApiError) return next(error);
       if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
       return next(ApiError.invalid(error.message || error));
     }
@@ -25,6 +26,7 @@ export default class BrandController {
       if (!brand) return next(ApiError.notFound('Not found!'));
       return res.status(200).json(brand);
     } catch (error: any) {
+      if (error instanceof ApiError) return next(error);
       if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
       return next(ApiError.invalid(error.message || error));
     }
@@ -39,6 +41,7 @@ export default class BrandController {
       if (!brand) return next(ApiError.notFound('Not found!'));
       return res.status(200).json(brand);
     } catch (error: any) {
+      if (error instanceof ApiError) return next(error);
       if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
       return next(ApiError.invalid(error.message || error));
     }
@@ -51,6 +54,7 @@ export default class BrandController {
       const brand = await this.brandService.deleteBrand(Number(id));
       return res.status(200).json(brand);
     } catch (error: any) {
+      if (error instanceof ApiError) return next(error);
       if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
       return next(ApiError.invalid(error.message || error));
     }

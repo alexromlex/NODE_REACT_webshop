@@ -23,6 +23,7 @@ export default class ProductController {
       if (!result) return next(ApiError.internal(`Can't create product. See logs`));
       return res.status(200).json(result);
     } catch (error: any) {
+      if (error instanceof ApiError) return next(error);
       if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
       return next(ApiError.invalid(error.message || error));
     }
@@ -47,6 +48,7 @@ export default class ProductController {
       );
       return res.status(200).json(products);
     } catch (error: any) {
+      if (error instanceof ApiError) return next(error);
       return next(ApiError.invalid(error.message));
     }
   }
@@ -59,6 +61,7 @@ export default class ProductController {
       if (!product) return next(ApiError.invalid('Not found!'));
       return res.status(200).json(product);
     } catch (error: any) {
+      if (error instanceof ApiError) return next(error);
       if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
       return next(ApiError.invalid(error.message || error));
     }
@@ -72,6 +75,7 @@ export default class ProductController {
       if (!result) return next(ApiError.internal(`Can't delete product. See logs`));
       return res.status(200).json(Number(id));
     } catch (error: any) {
+      if (error instanceof ApiError) return next(error);
       if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
       return next(ApiError.invalid(error.message || error));
     }
@@ -99,6 +103,7 @@ export default class ProductController {
       if (!result) return next(ApiError.internal(`Can't update product. See logs`));
       return res.status(200).json(result);
     } catch (error: any) {
+      if (error instanceof ApiError) return next(error);
       if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
       return next(ApiError.invalid(error.message || error));
     }

@@ -8,7 +8,7 @@ export interface UserRepositoryInterface {
   getById(id: number, options?: FindOptions): Promise<UserInterface | null>;
   findByOptions(options: FindOptions): Promise<UserInterface | null>;
   update(id: number, values: Record<string, any>): Promise<UserInterface>;
-  delete(id: number): Promise<number>;
+  delete(id: number): Promise<any>;
   count(options?: CountWithOptions): Promise<GroupedCountResultItem[]>;
 }
 
@@ -28,7 +28,7 @@ export default class UserRepository extends BaseRepo<UserInterface> {
     return super.getById(id, options);
   }
   async findByOptions(options: FindOptions) {
-    console.log('findByOptions called! ' + options);
+    // console.log('findByOptions called! ' + options);
     return super.getOne(options);
   }
   async update(id: number, values: Record<string, any>) {

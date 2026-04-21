@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import adminStore from '../stores/adminStore';
 import { Card, Form, InputGroup, Modal, Row, Button } from 'react-bootstrap';
+import { useStore } from '../stores/StoreProvider';
 
 interface ModalTypeBodyAdminProps {
     data: any;
@@ -8,6 +8,7 @@ interface ModalTypeBodyAdminProps {
 }
 
 const ModalTypeBodyAdmin: React.FC<ModalTypeBodyAdminProps> = ({ data, onSave }) => {
+    const adminStore = useStore('adminStore');
     const [typeName, setTypeName] = useState(data && data.name ? data.name : '');
     const [error, setError] = useState('');
     const [brandsSelected, setBrandsSelected] = useState(data ? data.brands.map((b) => b.id) : []);

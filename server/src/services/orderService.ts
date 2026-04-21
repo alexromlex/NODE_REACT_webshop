@@ -36,7 +36,7 @@ export default class OrderService implements OrderServiceInterface {
   }
 
   async getUserOrders(userId: number) {
-    if (!userId) throw ApiError.invalid('userId is reqired!');
+    if (!userId) throw ApiError.invalid('userId is required!');
     return await this.orderRepo.getAll({ where: { userId }, order: [['createdAt', 'DESC']] });
   }
 
@@ -59,14 +59,39 @@ export default class OrderService implements OrderServiceInterface {
     return order;
   }
 
+  private calculateOrderDetails(products: any[], basketItems: any[]) {
+    let calcAmount = 0;
+    const items: any = [];
+    // calculate total order amount and prepare order items
+    products.forEach((p: any) => {
+      const indx = basketItems.findIndex(({ id }) => id === p.id);
+      if (indx > -1) {
+        calcAmount += p.price * basketItems[indx].quantity;
+        items.push({
+          name: p.name,
+          info: p.info,
+          price: Number(p.price),
+          quantity: basketItems[indx].quantity,
+          product_id: p.id,
+          type_name: p.type.name,
+          brand_name: p.brand.name,
+        });
+      }
+    });
+    return { calcAmount, items };
+  }
+    
+
   async newOrder(values: Record<string, any>) {
-    if (!values) throw ApiError.invalid('values are empty or missing');
+    if (!values) throw ApiError.invalid('values required');
     try {
       return await sequelize.transaction(async () => {
+        // get check user basket with items
         const basketService = new BasketService();
         const basket = await basketService.getBasket(undefined, values.user.id);
+        // console.log('basket: ', basket);
         if (!basket) throw ApiError.notFound('Cant find user basket!');
-
+        // find products by basket items
         const products = await new ProductService().getAllProduct({
           include: [
             {
@@ -79,30 +104,17 @@ export default class OrderService implements OrderServiceInterface {
           ],
           where: { id: { [Op.in]: values.basket_items.map((p: any) => p.id) } },
         });
-        let calcAmount = 0;
-        const items: any = [];
-        products.forEach((p: any) => {
-          const indx = values.basket_items.findIndex(({ id }) => id === p.id);
-          if (indx > -1) {
-            calcAmount += p.price * values.basket_items[indx].quantity;
-            items.push({
-              name: p.name,
-              info: p.info,
-              price: Number(p.price),
-              quantity: values.basket_items[indx].quantity,
-              product_id: p.id,
-              type_name: p.type.name,
-              brand_name: p.brand.name,
-            });
-          }
-        });
+        // console.log('products: ', products);
+        const { calcAmount, items } = this.calculateOrderDetails(products, values.basket_items);
         if (values.amount !== calcAmount) throw ApiError.invalid('Problem with order amount calculating');
+        // create invoice data
         const invoice = {
           seller: { name: 'Webshop' },
           buyer: values.invoiceData,
           delivery: values.deliveryData,
           userId: values.user.id,
         };
+        // create order with items and invoice
         const order = await this.orderRepo.create(
           {
             amount: values.amount + values.shipping.price + values.payment.price,
@@ -115,8 +127,9 @@ export default class OrderService implements OrderServiceInterface {
           },
           { include: [{ model: OrderItem, as: 'item' }, Invoice] }
         );
-        if (!order) throw ApiError.notFound('Cant create new order!');
-
+        // console.log('order: ', order);
+        if (!order) throw ApiError.internal('Cant create new order!');
+        // empty user basket
         await basketService.emptyBasket(basket.id);
         return { orderId: order.id };
       });

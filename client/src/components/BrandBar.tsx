@@ -1,11 +1,12 @@
 import { observer } from 'mobx-react-lite';
 import { Button } from 'react-bootstrap';
-import productStore from '../stores/productStore';
 import { useSearchParams } from 'react-router-dom';
 import { BrandInterface } from '../common/types';
 import { regexName } from '../common/utils';
+import { useStore } from '../stores/StoreProvider';
 
 const BrandBar = () => {
+  const productStore = useStore('productStore');
   const [searchParams, setSearchParams] = useSearchParams();
   const clickHandler = (brand: BrandInterface) => {
     if (brand.id === productStore.selectedBrand?.id) {

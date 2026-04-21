@@ -16,6 +16,7 @@ export default class SettingsController {
       if (!result) return next(ApiError.internal(`Can't get settings. See logs`));
       return res.json({ settings: result });
     } catch (error: any) {
+      if (error instanceof ApiError) return next(error);
       if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
       return next(ApiError.invalid(error.message || error));
     }
@@ -27,6 +28,7 @@ export default class SettingsController {
       if (!result) return next(ApiError.internal(`Can't get settings. See logs`));
       return res.json(Object.fromEntries(result.map(({ name, value }) => [name, value])));
     } catch (error: any) {
+      if (error instanceof ApiError) return next(error);
       if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
       return next(ApiError.invalid(error.message || error));
     }
@@ -38,6 +40,7 @@ export default class SettingsController {
       if (!result) return next(ApiError.internal(`Can't get settings. See logs`));
       return res.json(result.value);
     } catch (error: any) {
+      if (error instanceof ApiError) return next(error);
       if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
       return next(ApiError.invalid(error.message || error));
     }
@@ -48,6 +51,7 @@ export default class SettingsController {
       if (!result) return next(ApiError.internal(`Can't get settings. See logs`));
       return res.json(result.value);
     } catch (error: any) {
+      if (error instanceof ApiError) return next(error);
       if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
       return next(ApiError.invalid(error.message || error));
     }
@@ -58,6 +62,7 @@ export default class SettingsController {
       if (!result) return next(ApiError.internal(`Can't get settings. See logs`));
       return res.json(Object.fromEntries(result.map(({ name, value }) => [name, value])));
     } catch (error: any) {
+      if (error instanceof ApiError) return next(error);
       if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
       return next(ApiError.invalid(error.message || error));
     }
@@ -71,6 +76,7 @@ export default class SettingsController {
       if (!result) return next(ApiError.internal(`Can't get settings. See logs`));
       return res.json({ updated: result });
     } catch (error: any) {
+      if (error instanceof ApiError) return next(error);
       if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
       return next(ApiError.invalid(error.message || error));
     }

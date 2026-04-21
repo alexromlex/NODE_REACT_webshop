@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { Badge, Button, Col, Container, Row, Table, Modal } from 'react-bootstrap';
-import orderStore from '../stores/orderStore';
 import { observer } from 'mobx-react-lite';
 import { useNavigate } from 'react-router-dom';
 import ModalWindow from '../ui/modal';
@@ -9,8 +8,10 @@ import { getBillingSettings } from '../api/settingsApi';
 import { OrderInterface } from '../common/types';
 import { cancelOrderByUser } from '../api/orderApi';
 import { statusStyle } from '../common/utils';
+import { useStore } from '../stores/StoreProvider';
 
 const OrdersPage = () => {
+  const orderStore = useStore('orderStore');
   const [orderData, setOrderData] = useState<OrderInterface | null>(null);
   const [modalShow, setModalShow] = useState(false);
   const [modalTitle, setModalTitle] = useState('');

@@ -1,9 +1,10 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { Button, Col, Row } from 'react-bootstrap';
 import { useLocation, useNavigate } from 'react-router-dom';
-import userStore from '../stores/userStore';
+import { useStore } from '../stores/StoreProvider';
 
 const CheckoutSuccess = () => {
+    const userStore = useStore('userStore');
     const location = useLocation();
     const OrderId = location.state && location.state.orderId ? location.state.orderId : undefined;
     const navigator = useNavigate();

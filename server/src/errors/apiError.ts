@@ -15,9 +15,12 @@ export default class ApiError extends Error {
     return new ApiError(500, message);
   }
   static forbidden(message: any) {
-    return new ApiError(483, message);
+    return new ApiError(403, message);
   }
   static invalid(message: any) {
-    return new ApiError(403, message);
+    return new ApiError(400, message);
+  }
+  static unauthorized(message: any) {
+    return new ApiError(401, message);
   }
 }

@@ -1,4 +1,5 @@
 module.exports = {
+  maxWorkers: "75%",
   roots: ['<rootDir>'],
   transform: {
     '^.+\\.tsx?$': 'ts-jest',
@@ -13,16 +14,20 @@ module.exports = {
   //     //  { skipFull: true }
   //   ],
   // ],
+
   collectCoverageFrom: [
     // 'src/**/*.ts', // - all
     'src/routes/*.ts', // - only routes
+    // 'src/controllers/basketController.ts',   // In PROGRESS
+    // 'src/controllers/productController.ts',  // In PROGRESS
+    // 'src/controllers/userController.ts',     // In PROGRESS
   ],
   coveragePathIgnorePatterns: [
     'src/middleware',
     'src/types',
     'baseController.ts',
     'src/repositories/',
-    'src/db-seed.ts',
+    'src/database/seed-db.ts',
     'src/index.ts',
     'src/routes/systemRouter.ts',
   ],

@@ -1,14 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import { Button, Card, Container, Form, InputGroup } from 'react-bootstrap';
 import { Editor } from '@tinymce/tinymce-react';
-import adminStore from '../../stores/adminStore';
 import { observer } from 'mobx-react-lite';
-import mainStore from '../../stores/mainStore';
 import { updateSettings } from '../../api/settingsApi';
 import { uuid4 } from '../../common/utils';
-import userStore from '../../stores/userStore';
+import { useStore } from '../../stores/StoreProvider';
 
 const SettingsPage = () => {
+  const mainStore = useStore('mainStore');
+  const userStore = useStore('userStore');
+  const adminStore = useStore('adminStore');
   const general_termsRef = useRef(null);
   const privacy_policyRef = useRef(null);
   const [settings, setSettings] = useState(adminStore.settings);

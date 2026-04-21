@@ -1,14 +1,16 @@
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import { CallableFunc } from '../common/types';
-import { useState } from 'react';
-import { Form } from 'react-bootstrap';
 
 export interface ModalActionInterface {
     title: string;
     body: JSX.Element;
     action: { name: string; handler: CallableFunc | null };
-    modalProps: { modalShow: boolean; onHide: CallableFunc };
+    modalProps: { 
+        show: boolean; 
+        onHide: CallableFunc, 
+        size: string, 
+        centered: boolean };
 }
 
 export interface ModalInterface {

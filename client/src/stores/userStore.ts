@@ -40,6 +40,7 @@ class UserStore {
   logoutUser() {
     this._isAuth = false;
     this._user = null;
+    localStorage.removeItem('token');
   }
 
   setUser(user: UserInterface) {
@@ -47,4 +48,4 @@ class UserStore {
   }
 }
 
-export default new UserStore();
+export default UserStore;

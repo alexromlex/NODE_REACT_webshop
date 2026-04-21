@@ -89,6 +89,7 @@ export default class SettingsService implements SettingsServiceInterface {
   async createSettings(values: { name: string; value: string }[]) {
     if (!values || Object.keys(values).length === 0) return;
     values.forEach(async (v) => {
+      console.log('Create: ', JSON.stringify(v));
       await this.settingsRepository.findOrCreate({
         where: { name: v.name },
         defaults: {
