@@ -1,4 +1,5 @@
-<h3 align="center">WEBSHOP [ReactJS + Express(NodeJS) + Sequalize(PostgreSQL)]</h3>
+<h1 align="center">WEBSHOP</h1>
+<h3 align="center">REACT + NodeJS(Express) + PostgreSQL(Sequalize ORM)</h3>
 
 ## Quick links
 
