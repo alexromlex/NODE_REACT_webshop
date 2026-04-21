@@ -202,9 +202,12 @@ class AdminStore {
   }
 
   *deleteUser(id: number) {
+    console.log('deleteUser called with id: ', id);
     try {
       const resp = yield deleteUser(id);
-      this._users = this._users.filter((t) => t.id !== id);
+      if (resp.status == 200) {
+        this._users = this._users.filter((t) => t.id !== id);
+      }
       return resp;
     } catch (error: any) {
       console.log(error);
@@ -295,4 +298,4 @@ class AdminStore {
   }
 }
 
-export default new AdminStore();
+export default AdminStore;

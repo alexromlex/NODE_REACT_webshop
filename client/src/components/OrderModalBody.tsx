@@ -1,9 +1,10 @@
 import { Col, Container, Row, Table } from 'react-bootstrap';
 import { NavLink } from 'react-router-dom';
 import { OrderModalBodyProps } from '../common/types';
-import userStore from '../stores/userStore';
+import { useStore } from '../stores/StoreProvider';
 
 const OrderModalBody: React.FC<OrderModalBodyProps> = ({ order, billing }) => {
+  const userStore = useStore('userStore');
   return (
     <Container fluid>
       <Row className="rounded p-3 bg-warning bg-opacity-25">

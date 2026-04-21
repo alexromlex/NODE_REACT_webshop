@@ -1,3 +1,9 @@
+/**
+ * @group release_2
+ * @group regression
+ * @group api
+ * @group product_type
+ */
 import supertest from 'supertest';
 import { createServer } from '../../server';
 import TypeRepository from '../../repositories/typeRepo';

@@ -6,13 +6,14 @@ import ToastContainer from './ui/toast/ToastContainer';
 import ModalWindow from './ui/modal';
 import { useEffect, useState } from 'react';
 import { userCheckAuth } from './api/userApi';
-import userStore from './stores/userStore';
-import basketStore from './stores/basketStore';
-import mainStore from './stores/mainStore';
 import { jwtDecode } from 'jwt-decode';
 import { getMainSettings } from './api/settingsApi';
+import { useStore } from './stores/StoreProvider';
 
 const App = () => {
+  const userStore = useStore('userStore');
+  const basketStore = useStore('basketStore');
+  const mainStore = useStore('mainStore');
   const [userchecking, setUserChecking] = useState(true);
   useEffect(() => {
     userCheckAuth()
@@ -40,11 +41,11 @@ const App = () => {
   return (
     !userchecking && (
       <>
-        <BrowserRouter future={{ v7_startTransition: true }}>
-          <AppRouter />
-        </BrowserRouter>
-        <ToastContainer />
-        <ModalWindow />
+          <BrowserRouter future={{ v7_startTransition: true }}>
+            <AppRouter />
+          </BrowserRouter>
+          <ToastContainer />
+          <ModalWindow />
       </>
     )
   );

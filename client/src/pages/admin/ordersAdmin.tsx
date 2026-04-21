@@ -1,5 +1,4 @@
 import { Container, InputGroup, Row, Form, Badge } from 'react-bootstrap';
-import adminStore from '../../stores/adminStore';
 import EditDeleteTable from '../../components/EditDeleteTable';
 import { observer } from 'mobx-react-lite';
 import { dateFormatter, priceFormatter, statusStyle } from '../../common/utils';
@@ -8,8 +7,10 @@ import ModalWindow from '../../ui/modal';
 import { useEffect, useState } from 'react';
 import { OrderInterface } from '../../common/types';
 import { getAllOrder } from '../../api/orderApi';
+import { useStore } from '../../stores/StoreProvider';
 
 const OrdersAdmin = () => {
+  const adminStore = useStore('adminStore');
   const [modalShow, setModalShow] = useState(false);
   const [editOrder, setEditOrder] = useState<OrderInterface | {}>({});
   const [modalTitle, setModalTitle] = useState('');
@@ -112,7 +113,7 @@ const OrdersAdmin = () => {
           ]}
           rows={filtered}
           onEdit={editClickHandler}
-          onDelete={deleteClickHandler}
+          // onDelete={deleteClickHandler}
         />
       </Container>
       <ModalWindow

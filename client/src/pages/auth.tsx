@@ -2,9 +2,8 @@ import { Button, Card, Container } from 'react-bootstrap';
 import { useState } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { userLogin, userRegistration } from '../api/userApi';
-import userStore from '../stores/userStore';
-import basketStore from '../stores/basketStore';
 import { jwtDecode } from 'jwt-decode';
+import { useStore } from '../stores/StoreProvider';
 
 export interface LoginInterface {
   email: string;
@@ -15,6 +14,8 @@ interface AuthPageProps {
 }
 
 const AuthPage: React.FC<AuthPageProps> = ({ returnUrl }) => {
+  const userStore = useStore('userStore');
+  const basketStore = useStore('basketStore');
   const location = useLocation();
   const registerForm = location.pathname === '/register';
   const [email, setEmail] = useState('');
@@ -59,10 +60,11 @@ const AuthPage: React.FC<AuthPageProps> = ({ returnUrl }) => {
       className="d-flex align-items-center justify-content-center"
       style={{ height: window.innerHeight - 300 }}>
       <Card className="p-0 " style={{ width: 400 }}>
-        <Card.Header>{!registerForm ? 'LOGIN' : 'REGISTRATION'}</Card.Header>
+        <Card.Header data-testid="login.header">{!registerForm ? 'LOGIN' : 'REGISTRATION'}</Card.Header>
         <Card.Body>
           <div className="form-floating mb-3">
             <input
+              data-testid="login.email"
               type="email"
               className="form-control"
               id="floatingInput"
@@ -74,6 +76,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ returnUrl }) => {
           </div>
           <div className="form-floating">
             <input
+              data-testid="login.password"
               type="password"
               className="form-control"
               id="floatingPassword"
@@ -84,16 +87,16 @@ const AuthPage: React.FC<AuthPageProps> = ({ returnUrl }) => {
             <label htmlFor="floatingPassword">Password</label>
           </div>
           {error && (
-            <Card.Text style={{ color: 'red' }} className="mt-3">
+            <Card.Text style={{ color: 'red' }} className="mt-3" data-testid="login.error_message">
               {error}
             </Card.Text>
           )}
           <div className="row mt-3">
-            <div className="col d-flex align-items-center">
-              {registerForm ? <NavLink to={'/login'}>Login</NavLink> : <NavLink to={'/register'}>Registration</NavLink>}
+            <div className="col d-flex align-items-center" data-testid="login-register.link">
+              {registerForm ? <NavLink to={'/login'} >Login</NavLink> : <NavLink to={'/register'}>Registration</NavLink>}
             </div>
             <div className="col-auto">
-              <Button variant="primary" onClick={() => loginHandler({ email, pass })}>
+              <Button variant="primary" onClick={() => loginHandler({ email, pass })} data-testid="login.btn">
                 {!registerForm ? 'LOGIN' : 'REGISTRATION'}
               </Button>
             </div>

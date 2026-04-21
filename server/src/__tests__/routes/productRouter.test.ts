@@ -1,3 +1,10 @@
+/**
+ * @group release_2
+ * @group regression
+ * @group api
+ * @group product
+ * @group admin
+ */
 // 'use strict';
 import supertest from 'supertest';
 import { createServer } from '../../server';

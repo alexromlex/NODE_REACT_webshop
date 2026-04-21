@@ -1,4 +1,5 @@
 module.exports = {
+  maxWorkers: "75%",
   roots: ['<rootDir>'],
   transform: {
     '^.+\\.tsx?$': 'ts-jest',
@@ -13,6 +14,7 @@ module.exports = {
   //     //  { skipFull: true }
   //   ],
   // ],
+
   collectCoverageFrom: [
     // 'src/**/*.ts', // - all
     'src/routes/*.ts', // - only routes
@@ -48,5 +50,8 @@ module.exports = {
     '<rootDir>/src/__tests__/__fixtures__',
     '<rootDir>/src/__tests__/__mocks__',
   ],
+  // moduleNameMapper: {
+  //   '^express-idempotency-middleware$': '<rootDir>/src/__tests__/__mocks__/express-idempotency-middleware.ts'
+  // },
   preset: 'ts-jest',
 };

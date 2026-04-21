@@ -13,6 +13,7 @@ export default class TypeController {
       const types = await this.typeService.getAllTypes();
       res.status(200).json(types);
     } catch (error: any) {
+      if (error instanceof ApiError) return next(error);
       if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
       return next(ApiError.invalid(error.message || error));
     }
@@ -26,6 +27,7 @@ export default class TypeController {
       if (!type) return next(ApiError.notFound('Not found!'));
       return res.status(200).json(type);
     } catch (error: any) {
+      if (error instanceof ApiError) return next(error);
       if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
       return next(ApiError.invalid(error.message || error));
     }
@@ -38,6 +40,7 @@ export default class TypeController {
       if (!type) return next(ApiError.notFound('Not found!'));
       return res.status(200).json(type);
     } catch (error: any) {
+      if (error instanceof ApiError) return next(error);
       if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
       return next(ApiError.invalid(error.message || error));
     }
@@ -52,6 +55,7 @@ export default class TypeController {
       if (!type) return next(ApiError.notFound('Not found!'));
       return res.status(200).json(type);
     } catch (error: any) {
+      if (error instanceof ApiError) return next(error);
       if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
       return next(ApiError.invalid(error.message || error));
     }
@@ -64,6 +68,7 @@ export default class TypeController {
       const type = await this.typeService.deleteType(Number(id));
       return res.status(200).json(type);
     } catch (error: any) {
+      if (error instanceof ApiError) return next(error);
       if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
       return next(ApiError.invalid(error.message || error));
     }

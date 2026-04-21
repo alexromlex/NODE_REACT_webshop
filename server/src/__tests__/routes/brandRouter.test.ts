@@ -1,3 +1,9 @@
+/**
+ * @group release_3
+ * @group regression
+ * @group api
+ * @group product_brand
+ */
 import supertest from 'supertest';
 import { createServer } from '../../server';
 import BrandRepository from '../../repositories/brandRepo';
@@ -6,12 +12,11 @@ import jwt from 'jsonwebtoken';
 import { typesFixt } from '../__fixtures__/types';
 import { userAdminFixt } from '../__fixtures__/users';
 
-jest.mock('../../repositories/brandRepo');
-
 process.env.SECRET_KEY = 'kjdfh8ghdkjfngdfijbodsdlfdoighn';
 process.env.TOKEN_PREFIX = 'ROMLEX';
 const adminToken = jwt.sign(userAdminFixt, process.env.SECRET_KEY!, { expiresIn: '1h' });
 
+jest.mock('../../repositories/brandRepo');
 const getAll = jest.fn();
 const getById = jest.fn();
 const create = jest.fn();

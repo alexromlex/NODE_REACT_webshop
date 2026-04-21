@@ -1,9 +1,10 @@
 import ToastObj from './ToastObj';
 import ToastContainer from 'react-bootstrap/ToastContainer';
 import { observer } from 'mobx-react-lite';
-import userStore from '../../stores/userStore';
+import { useStore } from '../../stores/StoreProvider';
 
 const ToastsContainer = () => {
+    const userStore = useStore('userStore');
     return (
         <ToastContainer
             className="p-3"

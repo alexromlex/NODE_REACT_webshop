@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { InputGroup, Button, Stack } from 'react-bootstrap';
 import { Form } from 'react-bootstrap';
-import basketStore from '../stores/basketStore';
 import { useNavigate } from 'react-router-dom';
-import userStore from '../stores/userStore';
 import { uuid4 } from '../common/utils';
 import { BasketProductProps } from '../common/types';
+import { useStore } from '../stores/StoreProvider';
 
 const BasketProduct: React.FC<BasketProductProps> = ({ product }) => {
+  const userStore = useStore('userStore');
+  const basketStore = useStore('basketStore');
   const [qty, setQty] = useState(1);
   const navigator = useNavigate();
 

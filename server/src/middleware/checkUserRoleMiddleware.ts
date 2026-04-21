@@ -1,6 +1,7 @@
 import ApiError from '../errors/apiError';
 import jwt from 'jsonwebtoken';
 import { NextFunction, Request, Response } from 'express';
+
 export default function (userRoles: string[]) {
   return function (req: Request, res: Response, next: NextFunction) {
     if (req.method === 'OPTIONS') {
@@ -18,7 +19,7 @@ export default function (userRoles: string[]) {
       }
 
       const decoded: any = jwt.verify(token, String(process.env.SECRET_KEY));
-      if (!userRoles.includes(decoded.role)) {
+      if (!userRoles.includes(decoded.role.toUpperCase())) {
         return next(ApiError.forbidden('No permission!'));
       }
       //@ts-ignore

@@ -2,17 +2,18 @@ import { useState } from 'react';
 import { InputGroup, Button, Stack, Col } from 'react-bootstrap';
 import { Form } from 'react-bootstrap';
 import { ProductInterface } from '../common/types';
-import basketStore from '../stores/basketStore';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { serverUrl } from '../api/http';
 import { observer } from 'mobx-react-lite';
 import ButtonDelete from '../ui/buttons/delete';
+import { useStore } from '../stores/StoreProvider';
 
 interface BasketProductProps {
   product: ProductInterface & { quantity: number };
 }
 
 const ProductBasket: React.FC<BasketProductProps> = ({ product }) => {
+  const basketStore = useStore('basketStore');
   const [qty, setQty] = useState(product.quantity);
   const navigator = useNavigate();
   const incementHandler = () => {
@@ -29,7 +30,7 @@ const ProductBasket: React.FC<BasketProductProps> = ({ product }) => {
       <Col className="d-flex justify-content-center border product_img">
         <img
           className={'img-fluid'}
-          src={serverUrl + '/static/' + product.img}
+          src={serverUrl + '/' +product.img}
           alt={product.name}
           onClick={() => {
             navigator('/product/' + product.id!);

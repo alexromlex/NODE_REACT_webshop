@@ -1,3 +1,10 @@
+/**
+ * @group release_3
+ * @group regression
+ * @group api
+ * @group slow
+ * @group basket
+ */
 import supertest from 'supertest';
 import BasketRepository from '../../repositories/basketRepo';
 import { createServer } from '../../server';

@@ -2,6 +2,9 @@ import Router from 'express';
 const router = Router();
 import OrderController from '../controllers/orderController';
 import hasRoles from '../middleware/checkUserRoleMiddleware';
+import { requireIdempotencyKey } from '../middleware/idempotencyMiddleware';
+import { idempotency } from 'express-idempotency';
+
 
 router.route('/').get(hasRoles(['ADMIN']), (...args) => new OrderController().getAllOrder(...args));
 
@@ -9,7 +12,11 @@ router.route('/user').get(hasRoles(['USER', 'ADMIN']), (...args) => new OrderCon
 
 router.route('/update/:id').patch(hasRoles(['ADMIN']), (...args) => new OrderController().updateOrder(...args));
 
-router.route('/new').post(hasRoles(['USER', 'ADMIN']), (...args) => new OrderController().newOrder(...args));
+router.route('/new').post(
+  hasRoles(['USER', 'ADMIN']),
+  requireIdempotencyKey,
+  idempotency(),
+  (...args) => new OrderController().newOrder(...args));
 
 router
   .route('/cancel')

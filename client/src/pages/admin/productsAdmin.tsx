@@ -2,7 +2,6 @@ import { Button, Container, Row, InputGroup, Form } from 'react-bootstrap';
 import EditDeleteTable from '../../components/EditDeleteTable';
 import { useEffect, useState } from 'react';
 import ModalWindow from '../../ui/modal';
-import adminStore from '../../stores/adminStore';
 import { observer } from 'mobx-react-lite';
 import { ProductInterface } from '../../common/types';
 import { deleteProduct, getProduct, getProducts } from '../../api/productsApi';
@@ -14,8 +13,10 @@ import { useSearchParams } from 'react-router-dom';
 import TypeBrandSelector from '../../components/TypeBrandSelector';
 import { priceFormatter, regexName } from '../../common/utils';
 import { useDebouncedCallback } from '../../hooks/useDebouncedCallback';
+import { useStore } from '../../stores/StoreProvider';
 
 const ProductsAdmin = () => {
+  const adminStore = useStore('adminStore');
   const [modalShow, setModalShow] = useState(false);
   const [editItem, setEditItem] = useState<ProductInterface | null>(null);
   const [modalTitle, setModalTitle] = useState('PRODUCT - new');

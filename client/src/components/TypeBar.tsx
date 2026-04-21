@@ -1,13 +1,14 @@
 import { observer } from 'mobx-react-lite';
 import { ListGroup } from 'react-bootstrap';
-import productStore from '../stores/productStore';
 import { getType } from '../api/typesApi';
 import { useSearchParams } from 'react-router-dom';
 import { regexName } from '../common/utils';
 import { TypeInterface } from '../common/types';
 import { useEffect } from 'react';
+import { useStore } from '../stores/StoreProvider';
 
 const TypeBar = () => {
+  const productStore = useStore('productStore');
   const [searchParams, setSearchParams] = useSearchParams();
   const clickHandler = (type: TypeInterface) => {
     if (type.id === productStore.selectedType?.id) {

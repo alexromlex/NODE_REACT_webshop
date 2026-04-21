@@ -94,4 +94,4 @@ class BasketStore {
     });
   }
 }
-export default new BasketStore();
+export default BasketStore;

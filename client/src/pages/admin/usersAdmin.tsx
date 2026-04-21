@@ -4,12 +4,14 @@ import { InputGroup, Form } from 'react-bootstrap';
 import { useEffect, useState } from 'react';
 import ModalWindow from '../../ui/modal';
 import Modal from 'react-bootstrap/Modal';
-import adminStore, { AdminEditUserInterface, AdminUserInterface } from '../../stores/adminStore';
 import { observer } from 'mobx-react-lite';
 import { dateFormatter } from '../../common/utils';
 import { getUsers } from '../../api/userApi';
+import { AdminEditUserInterface, AdminUserInterface } from '../../common/types'
+import { useStore } from '../../stores/StoreProvider';
 
 const UsersAdmin = () => {
+  const adminStore = useStore('adminStore');
   const [modalNewShow, setModalNewShow] = useState(false);
   const [modalEditShow, setModalEditShow] = useState(false);
   const [error, setError] = useState('');
@@ -28,7 +30,6 @@ const UsersAdmin = () => {
         return;
       }
       const userData = { email, password, role };
-      console.log('userData: ', userData);
       const resp = await adminStore.createUser(userData);
       if (resp.status === 200) {
         setModalNewShow(false);
@@ -94,7 +95,7 @@ const UsersAdmin = () => {
     const [password, setPass] = useState('');
     const [role, setRole] = useState(props.data.role);
     return (
-      <>
+      <form className='m-0 p-0' autoComplete='off'>
         <InputGroup className="mb-3">
           <InputGroup.Text className="col-2">Email:</InputGroup.Text>
           <Form.Control
@@ -102,7 +103,11 @@ const UsersAdmin = () => {
             type="text"
             placeholder="username@mail.com"
             value={email}
-            autoFocus
+            autoComplete={"off"}
+            autoCorrect="off"
+            autoCapitalize="off"
+            spellCheck={false}
+            //autoFocus
             onChange={(e) => setEmail(e.target.value)}
           />
         </InputGroup>
@@ -114,6 +119,11 @@ const UsersAdmin = () => {
             placeholder="Leave blank if not modify"
             value={password}
             onChange={(e) => setPass(e.target.value)}
+            autoComplete={"off"}
+            autoCorrect="off"
+            autoCapitalize="off"
+            spellCheck={false}
+            name='new-password'
           />
         </InputGroup>
 
@@ -140,7 +150,7 @@ const UsersAdmin = () => {
             SAVE
           </Button>
         </Modal.Footer>
-      </>
+      </form>
     );
   };
 
@@ -165,6 +175,7 @@ const UsersAdmin = () => {
   };
 
   const editClickHandler = (data: AdminUserInterface) => {
+    console.log('editClickHandler called!')
     setEditItem(data);
     setModalEditShow(true);
     setError('');
@@ -175,9 +186,7 @@ const UsersAdmin = () => {
     if (resp.status !== 200) {
       return setError(resp);
     }
-    setFiltered(
-      filter ? adminStore.users.filter((el) => el.email.toLowerCase().includes(filter.toLowerCase())) : adminStore.users
-    );
+    setFiltered(adminStore.users);
   };
 
   useEffect(() => {
@@ -216,6 +225,12 @@ const UsersAdmin = () => {
                 aria-describedby="inputGroup-sizing-sm"
                 placeholder="Filter users..."
                 onChange={(e) => setFilter(String(e.target.value))}
+                autoComplete={"off"}
+                autoCorrect="off"
+                autoCapitalize="off"
+                spellCheck={false}
+                name='search-user'
+                type='text'
               />
             </InputGroup>
             <Button

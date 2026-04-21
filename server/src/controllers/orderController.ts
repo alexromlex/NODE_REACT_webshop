@@ -1,6 +1,7 @@
 import ApiError from '../errors/apiError';
 import { NextFunction, Request, Response } from 'express';
 import OrderService, { OrderServiceInterface } from '../services/orderService';
+import { isIdempotencyHit, reportIdempotencyError } from '../middleware/idempotencyMiddleware';
 
 export default class OrderController {
   private readonly orderService: OrderServiceInterface;
@@ -17,6 +18,7 @@ export default class OrderController {
     try {
       res.status(200).json(await this.orderService.getAllOrder(options));
     } catch (error: any) {
+      if (error instanceof ApiError) return next(error);
       if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
       return next(ApiError.invalid(error.message || error));
     }
@@ -29,6 +31,7 @@ export default class OrderController {
     try {
       res.status(200).json(await this.orderService.getUserOrders(Number(user.id)));
     } catch (error: any) {
+      if (error instanceof ApiError) return next(error);
       if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
       return next(ApiError.invalid(error.message || error));
     }
@@ -44,6 +47,7 @@ export default class OrderController {
       if (!order) return res.status(404).json('Not found!');
       return res.status(200).json(order);
     } catch (error: any) {
+      if (error instanceof ApiError) return next(error);
       if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
       return next(ApiError.invalid(error.message || error));
     }
@@ -61,12 +65,17 @@ export default class OrderController {
       if (!order) return next(ApiError.notFound('Cant find order by given options!'));
       return res.status(200).json(order);
     } catch (error: any) {
+      if (error instanceof ApiError) return next(error);
       if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
       return next(ApiError.invalid(error.message || error));
     }
   }
 
   async newOrder(req: Request, res: Response, next: NextFunction) {
+    if (isIdempotencyHit(req)) {
+      // console.log(`[newOrder] Idempotency hit! Returning cached response...`);
+      return;
+    }
     const { basket_items, amount, deliveryData, invoiceData, shipping, payment } = req.body;
     //@ts-ignore
     const user = req.user;
@@ -87,6 +96,8 @@ export default class OrderController {
       if (!result) return next(ApiError.internal('Error see logs...'));
       return res.status(200).json(result);
     } catch (error: any) {
+      if (error instanceof ApiError) return next(error);
+      reportIdempotencyError(req);
       if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
       return next(ApiError.invalid(error.message || error));
     }
@@ -100,6 +111,7 @@ export default class OrderController {
       if (!result) return next(ApiError.invalid("Can't get statistic, see logs!"));
       return res.status(200).json(result);
     } catch (error: any) {
+      if (error instanceof ApiError) return next(error);
       if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
       return next(ApiError.invalid(error.message || error));
     }
@@ -112,6 +124,7 @@ export default class OrderController {
       if (!result) return next(ApiError.invalid("Can't get statistic, see logs!"));
       return res.status(200).json(result);
     } catch (error: any) {
+      if (error instanceof ApiError) return next(error);
       if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
       return next(ApiError.invalid(error.message || error));
     }
@@ -124,6 +137,7 @@ export default class OrderController {
       if (!result) return next(ApiError.invalid("Can't get statistic, see logs!"));
       return res.status(200).json(result);
     } catch (error: any) {
+      if (error instanceof ApiError) return next(error);
       if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
       return next(ApiError.invalid(error.message || error));
     }
@@ -136,6 +150,7 @@ export default class OrderController {
       if (!result) return next(ApiError.invalid("Can't get statistic, see logs!"));
       return res.status(200).json(result);
     } catch (error: any) {
+      if (error instanceof ApiError) return next(error);
       if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
       return next(ApiError.invalid(error.message || error));
     }
@@ -148,6 +163,7 @@ export default class OrderController {
       if (!result) return next(ApiError.invalid("Can't get statistic, see logs!"));
       return res.status(200).json(result);
     } catch (error: any) {
+      if (error instanceof ApiError) return next(error);
       if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
       return next(ApiError.invalid(error.message || error));
     }

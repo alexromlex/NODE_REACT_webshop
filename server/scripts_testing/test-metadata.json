@@ -1,0 +1,80 @@
+[
+  {
+    "file": "healthcheck.test.ts",
+    "tags": [
+      "smoke",
+      "regression",
+      "heathcheck"
+    ]
+  },
+  {
+    "file": "routes/adminSettingsRouter.test.ts",
+    "tags": [
+      "release_2",
+      "regression",
+      "api",
+      "settings",
+      "admin"
+    ]
+  },
+  {
+    "file": "routes/basketRouter.test.ts",
+    "tags": [
+      "release_3",
+      "regression",
+      "api",
+      "slow",
+      "basket"
+    ]
+  },
+  {
+    "file": "routes/brandRouter.test.ts",
+    "tags": [
+      "release_3",
+      "regression",
+      "api",
+      "product_brand"
+    ]
+  },
+  {
+    "file": "routes/orderRouter.test.ts",
+    "tags": [
+      "release_3",
+      "regression",
+      "order",
+      "api"
+    ]
+  },
+  {
+    "file": "routes/productRouter.test.ts",
+    "tags": [
+      "release_2",
+      "regression",
+      "api",
+      "product",
+      "admin"
+    ]
+  },
+  {
+    "file": "routes/typeRouter.test.ts",
+    "tags": [
+      "release_2",
+      "regression",
+      "api",
+      "product_type"
+    ]
+  },
+  {
+    "file": "routes/userRouter.test.ts",
+    "tags": [
+      "release_1",
+      "regression",
+      "api",
+      "user"
+    ]
+  },
+  {
+    "file": "unit/orderService.unit.test.ts",
+    "tags": []
+  }
+]

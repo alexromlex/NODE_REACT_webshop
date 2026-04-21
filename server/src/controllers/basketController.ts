@@ -17,6 +17,7 @@ export default class BasketController {
       if (!result) return next(ApiError.notFound("Can't get basket products! See logs"));
       res.status(200).json(result);
     } catch (error: any) {
+      if (error instanceof ApiError) return next(error);
       if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
       return next(ApiError.invalid(error.message || error));
     }
@@ -30,6 +31,7 @@ export default class BasketController {
       if (!resp) return next(ApiError.internal(`Can't delete. See logs`));
       return res.status(200).json({ removed: resp });
     } catch (error: any) {
+      if (error instanceof ApiError) return next(error);
       if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
       return next(ApiError.invalid(error.message || error));
     }
@@ -44,6 +46,7 @@ export default class BasketController {
       if (!result) return next(ApiError.internal(`Can't delete. See logs`));
       return res.status(200).json(result);
     } catch (error: any) {
+      if (error instanceof ApiError) return next(error);
       if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
       return next(ApiError.invalid(error.message || error));
     }
@@ -59,6 +62,7 @@ export default class BasketController {
       const resp = await this.basketService.addToBasket(Number(basketId), Number(product_id), Number(quantity));
       return res.status(200).json({ added: resp.length });
     } catch (error: any) {
+      if (error instanceof ApiError) return next(error);
       if (error.errors) return next(ApiError.invalid(error.errors.map((e: any) => e.message).join(', ')));
       return next(ApiError.invalid(error.message || error));
     }

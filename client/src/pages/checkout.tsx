@@ -1,11 +1,13 @@
 import { useRef, useState } from 'react';
-import basketStore from '../stores/basketStore';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { Button, Card, Col, Container, Form, InputGroup, Row } from 'react-bootstrap';
 import { observer } from 'mobx-react-lite';
 import { newOrder } from '../api/orderApi';
+import { v4 as uuidv4 } from 'uuid';
+import { useStore } from '../stores/StoreProvider';
 
 const CheckoutPage = () => {
+  const basketStore = useStore('basketStore');
   const navigator = useNavigate();
   const [validated, setValidated] = useState(false);
   const [selectedPayment, setSelectedPyment] = useState('bank');
@@ -27,6 +29,8 @@ const CheckoutPage = () => {
   const streetRefInv = useRef<HTMLInputElement>();
   const fullnameRefInv = useRef<HTMLInputElement>();
   const taxRefInv = useRef<HTMLInputElement>();
+
+  const idempotencyKey = uuidv4();
 
   const saveFormHandle = async (event) => {
     const form = event.currentTarget;
@@ -63,7 +67,11 @@ const CheckoutPage = () => {
         shipping: { name: selectedShipping, price: basketStore.shippingFees },
         payment: { name: selectedPayment, price: 0 },
       };
-      const resp = await newOrder(df);
+      const resp = await newOrder(
+        df, 
+        {headers:{'Idempotency-Key': idempotencyKey}}
+        // idempotency-key
+      );
       if (resp.status === 200) {
         basketStore.setEmptyBasket();
         navigator('/checkout_success', { state: { orderId: resp.data.orderId } });

@@ -1,4 +1,4 @@
-import { CreateOptions, FindOptions, ModelStatic } from 'sequelize';
+import { CreateOptions, FindOptions, ModelStatic} from 'sequelize';
 import ApiError from '../errors/apiError';
 
 export default abstract class BaseRepo<A> {
@@ -32,7 +32,7 @@ export default abstract class BaseRepo<A> {
   async update(id: number | string, values: Record<string, any>): Promise<A> {
     const instance = await this.model.findByPk(id);
     if (!instance) {
-      throw ApiError.notFound('Entity not found');
+      throw ApiError.notFound('Not found');
     }
     return instance.update(values);
   }
@@ -40,7 +40,7 @@ export default abstract class BaseRepo<A> {
   async delete(id: number | string): Promise<number> {
     const instance = await this.model.findByPk(id);
     if (!instance) {
-      throw ApiError.notFound('Entity not found');
+      throw ApiError.notFound('Not found');
     }
     return await instance.destroy();
   }

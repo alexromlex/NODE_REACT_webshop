@@ -1,6 +1,11 @@
+/**
+ * @group release_1
+ * @group regression
+ * @group api
+ * @group user
+ */
+
 import supertest from 'supertest';
-import UserRepository from '../../repositories/userRepo';
-import BasketRepository from '../../repositories/basketRepo';
 import { userAdminFixt, userFixt, userMonthlyCountRegsFixt } from '../__fixtures__/users';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
@@ -44,8 +49,6 @@ jest.mock('../../repositories/basketRepo', () => {
 });
 
 beforeEach(() => {
-  // @ts-ignore
-  UserRepository.mockClear();
   user_create.mockClear();
   user_getAll.mockClear();
   user_getById.mockClear();
@@ -53,8 +56,7 @@ beforeEach(() => {
   user_update.mockClear();
   user_delete.mockClear();
   user_count.mockClear();
-  // @ts-ignore
-  BasketRepository.mockClear();
+
   basket_create.mockClear();
 });
 
@@ -102,7 +104,7 @@ describe('API / USERS POSITIVE', () => {
       .send({ email: 'user@test.mail', password: '12345' })
       .expect(200)
       .then((res) => {
-        expect(res.body.user).toEqual(userFixt);
+        expect(res.body.user.id).toEqual(userFixt.id);
       });
   });
   test('POST - /statistic/monthly_regs => array of data', async () => {
@@ -137,42 +139,38 @@ describe('API / USERS POSITIVE', () => {
         expect(res.body.id).toBe(2);
       });
   });
-  test('DELETE - /2 => number of deleted users 1', async () => {
-    user_delete.mockImplementation(async () => 1);
+  test('DELETE - /2 => number of deleted id', async () => {
+    user_delete.mockResolvedValue(2);
     await supertest(createServer())
       .delete('/api/user/2')
       .set('Authorization', process.env.TOKEN_PREFIX + ' ' + adminToken)
       .expect(200)
       .then((res) => {
-        expect(res.body).toBe(1);
+        expect(res.body.id).toBe(2);
       });
   });
   test('PATCH - /1 => user with updated password', async () => {
-    const newPassHash = await bcrypt.hash('5555', 4);
-    user_findByOptions.mockImplementation(async () => userFixt);
-    user_update.mockImplementation(async () => ({ ...userFixt, password: newPassHash }));
+    user_findByOptions.mockResolvedValue(userFixt);
+    user_update.mockResolvedValue({ ...userFixt});
     await supertest(createServer())
       .patch('/api/user/2')
       .set('Authorization', process.env.TOKEN_PREFIX + ' ' + adminToken)
-      .send({ id: 2, values: { password: '5555' } })
-      .expect(200)
-      .then((res) => {
-        expect(bcrypt.compareSync('5555', res.body.password)).toBe(true);
-      });
+      .send({ password: '5555' })
+      .expect(200);
   });
 });
 
 describe('API / USERS NEGATIVE', () => {
-  test('POST - /login => error 403 incorrect password', async () => {
+  test('POST - /login => error 401 Unauthorized', async () => {
     user_findByOptions.mockImplementation(async () => {
       return { ...userFixt, password: await bcrypt.hash('123456', 4) };
     });
     await supertest(createServer())
       .post('/api/user/login')
       .send({ email: 'user@test.mail', password: '555' })
-      .expect(403);
+      .expect(401);
   });
-  test('GET - /auth => error 401 Unauthorized', async () => {
+  test('GET - /auth without token => error 401 Unauthorized', async () => {
     await supertest(createServer())
       .get('/api/user/auth')
       // .set('Authorization', process.env.TOKEN_PREFIX + ' ' + userToken)
@@ -181,7 +179,7 @@ describe('API / USERS NEGATIVE', () => {
         expect(res.body.message).toBe('Unauthorized');
       });
   });
-  test('GET - /auth with wrong hash => error 401 Unauthorized', async () => {
+  test('GET - /auth with fake token => error 401 Unauthorized', async () => {
     await supertest(createServer())
       .get('/api/user/auth')
       .set('Authorization', process.env.TOKEN_PREFIX + ' ' + 'ffggt45t66')

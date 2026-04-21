@@ -34,7 +34,7 @@ class OrderStore {
   }
 }
 
-export default new OrderStore();
+export default OrderStore;
 
 /* 
 New - Orders start off with the new status. At this stage you can confirm that the order details are correct and make any amendments to the order before moving on to the next step. Once you are happy with the order you can choose whether to invoice and wait for payment or release the order for dispatch without waiting for payment.

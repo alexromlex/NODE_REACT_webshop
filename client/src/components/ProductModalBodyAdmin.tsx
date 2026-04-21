@@ -3,11 +3,11 @@ import ProducInfoAdmin from './ProductInfoAdmin';
 import { ProductInterface } from '../common/types';
 import { useState, useEffect, useRef } from 'react';
 import { Form, Row, InputGroup, Col, Button, Modal, Image as Img } from 'react-bootstrap';
-import adminStore from '../stores/adminStore';
 import { getType } from '../api/typesApi';
 import { observer } from 'mobx-react-lite';
 import { AxiosError, isAxiosError } from 'axios';
 import { createProduct, updateProduct } from '../api/productsApi';
+import { useStore } from '../stores/StoreProvider';
 
 interface ModalBodyProps {
   data: ProductInterface | null;
@@ -17,13 +17,14 @@ interface ModalBodyProps {
 const serverUrl = `${window.location['protocol']}//${process.env.VITE_SERVER_HOST}:` + process.env.VITE_SERVER_PORT;
 
 const getImage = async (imgPath: string | File) => {
-  const response = await fetch(serverUrl + '/static/' + imgPath);
+  const response = await fetch(serverUrl + '/' +imgPath);
   const data = await response.blob();
   const file = new File([data], imgPath as string, { type: data.type });
   return file;
 };
 
 const ProductModalBody: React.FC<ModalBodyProps> = ({ data, onSave }) => {
+  const adminStore = useStore('adminStore');
   const allowedImageFormats = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/avif'];
   const [error, setError] = useState('');
   const [name, setName] = useState(data && data.name ? data.name : '');

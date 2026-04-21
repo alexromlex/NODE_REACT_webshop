@@ -18,7 +18,7 @@ const ProductItem: React.FC<ProductItemProps> = ({ product }) => {
       <Card className="p-0 product_card" onClick={() => productClickHandler()}>
         <Card.Img
           variant="top"
-          src={serverUrl + '/static/' + product.img}
+          src={serverUrl + '/' +product.img}
           style={{ width: 'auto', objectFit: 'contain' }}
           height={300}
           alt={product.name}

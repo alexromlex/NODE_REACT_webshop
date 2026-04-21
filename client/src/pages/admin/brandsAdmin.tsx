@@ -4,12 +4,13 @@ import { InputGroup, Form } from 'react-bootstrap';
 import { useEffect, useState } from 'react';
 import ModalWindow from '../../ui/modal';
 import Modal from 'react-bootstrap/Modal';
-import adminStore from '../../stores/adminStore';
 import { BrandInterface } from '../../common/types';
 import { observer } from 'mobx-react-lite';
 import { getBrands } from '../../api/brandsApi';
+import { useStore } from '../../stores/StoreProvider';
 
 const BrandsAdmin = () => {
+  const adminStore = useStore('adminStore');
   const [modalNewShow, setModalNewShow] = useState(false);
   const [modalEditShow, setModalEditShow] = useState(false);
   const [error, setError] = useState('');

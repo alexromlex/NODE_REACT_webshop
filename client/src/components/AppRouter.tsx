@@ -3,7 +3,6 @@ import PageNotFound from '../pages/404';
 import ProductPage from '../pages/product';
 import AuthPage from '../pages/auth';
 import LayOut from './LayOut';
-import userStore from '../stores/userStore';
 import BasketPage from '../pages/basket';
 import { AdminRoutes } from './AppRouterAdmin';
 import AdminLayout from './LayOutAdmin';
@@ -16,8 +15,10 @@ import TermsConditionsPage from '../pages/general_terms';
 import PrivacyPolicyPage from '../pages/privacy_policy';
 import PageError from '../pages/403';
 import { RouteInterface } from '../common/types';
+import { useStore } from '../stores/StoreProvider';
 
 const AppRouter = () => {
+  const userStore = useStore('userStore');
   const location = useLocation();
   const AllRoutes = [
     {
