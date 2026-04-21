@@ -3,24 +3,6 @@ const path = require('path');
 const { exec, execSync } = require('child_process');
 const { promisify } = require('util');
 
-// const execAsync = promisify(exec);
-
-// function runCommand(command) {
-//     return new Promise((resolve, reject) => {
-//         const child = exec(command, { stdio: 'inherit' });
-        
-//         child.on('close', (code) => {
-//             if (code !== 0) {
-//                 reject(new Error(`Command failed with code ${code}`));
-//             } else {
-//                 resolve('ok');
-//             }
-//         });
-        
-//         child.on('error', reject);
-//     });
-// }
-
 async function runTestsByTags(tags, options = {}) {
     const metadataPath = path.join(__dirname, 'test-metadata.json');
     
@@ -67,14 +49,6 @@ async function runTestsByTags(tags, options = {}) {
     } catch (error) {
         process.exit(error.status);
     }
-
-    // await runCommand(jestCommand);
-    
-    // try {
-    //     const { stdout, stderr } = await execAsync(jestCommand, { stdio: 'inherit' });
-    // } catch (error) {
-    //     process.exit(error.code || 1);
-    // }
 
 }
 

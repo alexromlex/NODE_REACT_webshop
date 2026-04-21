@@ -18,13 +18,16 @@ module.exports = {
   collectCoverageFrom: [
     // 'src/**/*.ts', // - all
     'src/routes/*.ts', // - only routes
+    // 'src/controllers/basketController.ts',   // In PROGRESS
+    // 'src/controllers/productController.ts',  // In PROGRESS
+    // 'src/controllers/userController.ts',     // In PROGRESS
   ],
   coveragePathIgnorePatterns: [
     'src/middleware',
     'src/types',
     'baseController.ts',
     'src/repositories/',
-    'src/db-seed.ts',
+    'src/database/seed-db.ts',
     'src/index.ts',
     'src/routes/systemRouter.ts',
   ],
@@ -50,8 +53,5 @@ module.exports = {
     '<rootDir>/src/__tests__/__fixtures__',
     '<rootDir>/src/__tests__/__mocks__',
   ],
-  // moduleNameMapper: {
-  //   '^express-idempotency-middleware$': '<rootDir>/src/__tests__/__mocks__/express-idempotency-middleware.ts'
-  // },
   preset: 'ts-jest',
 };
